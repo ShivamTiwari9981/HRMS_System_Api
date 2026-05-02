@@ -1,0 +1,9 @@
+dotnet ef database update -p HRMS.Infrastructure -s HRMS.API
+
+Add Migration
+
+dotnet ef migrations add MigrationName -p HRMS.Infrastructure -s HRMS.API
+
+remove Migration
+dotnet ef migrations remove -p HRMS.Infrastructure -s HRMS.API
+
