@@ -1,7 +1,7 @@
 
 using HRMS.Application.Services;
+using HRMS.Infrastructure.Models;
 using HRMS.Infrastructure.Persistence;
-using HRMS.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

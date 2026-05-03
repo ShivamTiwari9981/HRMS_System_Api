@@ -1,5 +1,6 @@
 ﻿using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
+using HRMS.Infrastructure.Models;
 using HRMS.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
