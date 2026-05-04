@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Caching\" />
     <Folder Include="Client\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,5 @@
 ﻿using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
-using HRMS.Infrastructure.Models;
 using HRMS.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -12,10 +11,10 @@ namespace HRMS.Infrastructure.Persistence
     {
 
         private IDbContextTransaction _transaction;
-        private readonly HRMSDbContext _repoContext;
+        private readonly HRMSDbRepoContext _repoContext;
         private readonly ICurrentSession _currentSession;
 
-        public UnitOfWork(HRMSDbContext context, ICurrentSession currentSession)
+        public UnitOfWork(HRMSDbRepoContext context, ICurrentSession currentSession)
         {
             _repoContext = context;
             _currentSession = currentSession;

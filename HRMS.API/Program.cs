@@ -1,6 +1,5 @@
 
 using HRMS.Application.Services;
-using HRMS.Infrastructure.Models;
 using HRMS.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +16,7 @@ namespace HRMS.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddDbContext<HRMSDbContext>(options =>
+            builder.Services.AddDbContext<HRMSDbRepoContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"));
             });

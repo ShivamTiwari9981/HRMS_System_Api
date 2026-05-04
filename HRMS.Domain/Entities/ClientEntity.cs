@@ -1,51 +1,70 @@
-﻿
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+//using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Domain.Entities
 {
-    [Table("Client")]
-    public class ClientEntity 
+    [Index(nameof(ClientCode), IsUnique = true)]
+    [Index(nameof(ClientName), IsUnique = true)]
+    [Index(nameof(Email), IsUnique = true)]
+    [Index(nameof(Phone), IsUnique = true)]
+    public class ClientEntity
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        [Column("Id")]
-        public Guid Id { get; set; }
-        [Required]
-        [StringLength(20)]
-        [Column("ClientCode")]
-        public string ClientCode { get; set; }
-        [Required]
-        [StringLength(200)]
-        [Column("CompanyName")]
-        public string CompanyName { get; set; }
-        [Column("CompanyLogo")]
-        public string? CompanyLogo { get; set; }
+        public Guid ClientId { get; set; } = Guid.NewGuid();
 
         [Required]
-        [StringLength(200)]
-        [Column("ClientName")]
+        [MaxLength(20)]
+        public string ClientCode { get; set; }
+
+        [Required]
+        [MaxLength(200)]
         public string ClientName { get; set; }
 
         [Required]
-        [StringLength(200)]
+        [MaxLength(200)]
+        public string CompanyName { get; set; }
+
+        public string? CompanyLogo { get; set; }
+
+        [Required]
+        [MaxLength(200)]
         public string Domain { get; set; }
 
-        [StringLength(200)]
+        [MaxLength(200)]
         public string? ContactPerson { get; set; }
+
         [Required]
-        [StringLength(200)]
+        [MaxLength(200)]
+        [EmailAddress]
         public string Email { get; set; }
+
         [Required]
+        [MaxLength(20)]
         public string Phone { get; set; }
-        public DateTime ExpiryDate { get; set; } = DateTime.UtcNow.AddDays(15);
-        [StringLength(200)]
+
+        [Required]
+        public DateTime ExpiryDate { get; set; }
+
+        [MaxLength(50)]
+        public string? GSTNumber { get; set; }
+
+        [MaxLength(200)]
         public string? Address { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
+        public bool? IsActive { get; set; } = true;
+
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
         public Guid CreatedBy { get; set; }
+
         public DateTime? UpdatedAt { get; set; }
+
         public Guid? UpdatedBy { get; set; }
+
         public bool? IsSynced { get; set; }
     }
 }

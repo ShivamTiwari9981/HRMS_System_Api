@@ -1,27 +1,28 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS.Domain.Entities
 {
-    [Table("Payroll")]
-    public class PayrollEntity : BaseEntity
+    [Index(nameof(ClientId), nameof(EmployeeId), nameof(Month), nameof(Year), IsUnique = true)]
+    public class PayrollEntity: BaseEntity
     {
-        [Required]
+        [Key]
+        public Guid PayrollId { get; set; } = Guid.NewGuid();
+
+        public Guid ClientId { get; set; }
+
         public Guid EmployeeId { get; set; }
 
-        [Required]
-        [MinLength(1)]
         public int Month { get; set; }
-        [Required]
         public int Year { get; set; }
-        [Required]
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal BasicSalary { get; set; }
-        [Required]
         public decimal Bonus { get; set; }
-        [Required]
         public decimal Deductions { get; set; }
-        [Required]
         public decimal NetSalary { get; set; }
     }
+    
 }

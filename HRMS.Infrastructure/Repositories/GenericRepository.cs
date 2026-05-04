@@ -1,5 +1,4 @@
 ﻿using HRMS.Domain.Interfaces;
-using HRMS.Infrastructure.Models;
 using HRMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -9,11 +8,11 @@ namespace HRMS.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly HRMSDbContext _context;
+        private readonly HRMSDbRepoContext _context;
         private readonly DbSet<T> _dbSet;
         private readonly ICurrentSession _currentSession;
 
-        public GenericRepository(HRMSDbContext context, ICurrentSession currentSession)
+        public GenericRepository(HRMSDbRepoContext context, ICurrentSession currentSession)
         {
             _context = context;
             _dbSet = context.Set<T>();

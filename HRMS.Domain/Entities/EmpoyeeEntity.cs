@@ -1,47 +1,68 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Domain.Entities
 {
 
-    [Table("Employee")]
+    [Index(nameof(ClientId), nameof(EmployeeCode), IsUnique = true)]
+    [Index(nameof(ClientId), nameof(Email), IsUnique = true)]
+    [Index(nameof(ClientId), nameof(Phone), IsUnique = true)]
     public class EmployeeEntity : BaseEntity
     {
+        [Key]
+        public Guid EmployeeId { get; set; } = Guid.NewGuid();
         [Required]
-        [StringLength(20)]
+        public Guid ClientId { get; set; }
+
+        [ForeignKey(nameof(ClientId))]
+        public virtual ClientEntity Client { get; set; }
+
+        [Required]
+        [MaxLength(20)]
         public string EmployeeCode { get; set; }
 
         [Required]
-        [StringLength(200)]
+        [MaxLength(200)]
         public string FirstName { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [MaxLength(100)]
         public string LastName { get; set; }
 
         [Required]
-        [StringLength(200)]
+        [MaxLength(200)]
         [EmailAddress]
         public string Email { get; set; }
 
-        [StringLength(20)]
-        [Phone]
-        public string Phone { get; set; }
+        [MaxLength(20)]
+        public string? Phone { get; set; }
 
         [Required]
         public Guid DepartmentId { get; set; }
 
         [Required]
-        [StringLength(200)]
+        [MaxLength(200)]
         public string Designation { get; set; }
 
         public string? ProfileImagePath { get; set; }
 
         public DateTime? DateOfJoining { get; set; }
 
+        [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal Salary { get; set; }
-        [Required]
-        public Guid UserId { get; set; }
+
+        public Guid? UserId { get; set; }
+
+        public DateTime? DateOfBirth { get; set; }
+        [MaxLength(10)]
+        public string? Gender { get; set; }
+        [MaxLength(200)]
+        public string? Address { get; set; }
+        [MaxLength(200)]
+        public string? EmergencyContact { get; set; }
     }
 }
