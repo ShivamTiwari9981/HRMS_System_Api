@@ -11,10 +11,10 @@ namespace HRMS.Infrastructure.Persistence
     {
 
         private IDbContextTransaction _transaction;
-        private readonly HRMSDbContext _repoContext;
+        private readonly HRMSDbRepoContext _repoContext;
         private readonly ICurrentSession _currentSession;
 
-        public UnitOfWork(HRMSDbContext context, ICurrentSession currentSession)
+        public UnitOfWork(HRMSDbRepoContext context, ICurrentSession currentSession)
         {
             _repoContext = context;
             _currentSession = currentSession;

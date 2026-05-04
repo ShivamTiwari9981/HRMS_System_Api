@@ -6,4 +6,10 @@ dotnet ef migrations add MigrationName -p HRMS.Infrastructure -s HRMS.API
 
 remove Migration
 dotnet ef migrations remove -p HRMS.Infrastructure -s HRMS.API
+cd E:\HRMS && dotnet ef dbcontext scaffold "Server=DESKTOP-J960VV4\SQLEXPRESS;Database=hrms_db;User Id=hrms;Password=NewPassword@123;TrustServerCertificate=true;Encrypt=false;MultipleActiveResultSets=true;" Microsoft.EntityFrameworkCore.SqlServer -o Persistence/Models -p HRMS.Infrastructure -c HRMSDbContext --force
 
+cd E:\HRMS; dotnet ef dbcontext scaffold "Server=DESKTOP-J960VV4\SQLEXPRESS;Database=hrms_db;User Id=hrms;Password=NewPassword@123;TrustServerCertificate=true;Encrypt=false;MultipleActiveResultSets=true;" Microsoft.EntityFrameworkCore.SqlServer -o Persistence/Models -p HRMS.Infrastructure -c HRMSDbContext --force
+
+
+******************* Database First Command ***************************************
+Scaffold-DbContext "Server=DESKTOP-J960VV4\SQLEXPRESS;Persist Security Info=False;User ID=hrms;Password=NewPassword@123;Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Context HRMSDbContext -DataAnnotations -Force

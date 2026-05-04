@@ -1,25 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HRMS.Domain.Entities
 {
-    [Table("Menu")]
+    [Index(nameof(ClientId), nameof(MenuName), IsUnique = true)]
     public class MenuEntity : BaseEntity
     {
+        [Key]
+        public int MenuId { get; set; }
+
+        public Guid ClientId { get; set; }
 
         public int? ParentMenuId { get; set; }
 
+        [ForeignKey(nameof(ParentMenuId))]
+        public MenuEntity ParentMenu { get; set; }
+
+        public ICollection<MenuEntity> Children { get; set; }
+
         [Required]
+        [MaxLength(200)]
         public string MenuName { get; set; }
 
-        public string? MenuIcon { get; set; }
+        public string MenuIcon { get; set; }
 
-        [Required]
         public string RouterLink { get; set; }
 
-        [Required]
         public int? DisplayOrder { get; set; }
-
-        public bool? IsVisible { get; set; }
     }
+   
 }

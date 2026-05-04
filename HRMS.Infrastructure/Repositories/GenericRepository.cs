@@ -1,22 +1,18 @@
 ﻿using HRMS.Domain.Interfaces;
 using HRMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace HRMS.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly HRMSDbContext _context;
+        private readonly HRMSDbRepoContext _context;
         private readonly DbSet<T> _dbSet;
         private readonly ICurrentSession _currentSession;
 
-        public GenericRepository(HRMSDbContext context, ICurrentSession currentSession)
+        public GenericRepository(HRMSDbRepoContext context, ICurrentSession currentSession)
         {
             _context = context;
             _dbSet = context.Set<T>();

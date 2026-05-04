@@ -1,27 +1,36 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Domain.Entities
 {
-    [Table("Attendance")]
+
+    [Index(nameof(ClientId), nameof(AttendanceCode), IsUnique = true)]
+    [Index(nameof(ClientId), nameof(EmployeeId), nameof(Date), IsUnique = true)]
     public class AttendanceEntity : BaseEntity
     {
+        [Key]
+        public Guid AttendanceId { get; set; } = Guid.NewGuid();
+
         [Required]
-        [Column("AttendanceCode")]
-        [StringLength(20)]
+        public Guid ClientId { get; set; }
+
+        [ForeignKey(nameof(ClientId))]
+        public virtual ClientEntity Client { get; set; }
+
+        [Required]
+        [MaxLength(20)]
         public string AttendanceCode { get; set; }
+
         [Required]
-        [Column("EmployeeId")]
         public Guid EmployeeId { get; set; }
+
+        public DateTime InTime { get; set; }
+        public DateTime? OutTime { get; set; }
+        public decimal? WorkingHours { get; set; }
+
         [Required]
-        [Column("CheckInTime")]
-        public DateTime CheckInTime { get; set; }
-        [Required]
-        [Column("CheckOutTime")]
-        public DateTime CheckOutTime { get; set; }
-        [Required]
-        [Column("Date")]
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } // keep only date part
     }
 }

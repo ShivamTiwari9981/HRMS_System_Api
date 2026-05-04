@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Persistence\HRMSDbContext.cs.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HRMS.Application\HRMS.Application.csproj" />
     <ProjectReference Include="..\HRMS.Domain\HRMS.Domain.csproj" />
     <ProjectReference Include="..\HRMS.Shared\HRMS.Shared.csproj" />
@@ -15,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Caching\" />
     <Folder Include="Client\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
