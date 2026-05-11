@@ -1,14 +1,17 @@
-﻿using HRMS.Domain.Entities;
+﻿
+using HRMS.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Infrastructure.Persistence
 {
     public class HRMSDbRepoContext : DbContext
     {
+        //private readonly Guid _clientId;
         public HRMSDbRepoContext(DbContextOptions<HRMSDbRepoContext> options)
-       : base(options) { }
+       : base(options) {
+            //_clientId = clientService.GetClientId();
 
-
+        }
         public DbSet<EmployeeEntity> Employee { get; set; }
         public DbSet<ClientEntity> Client { get; set; }
         public DbSet<AttendanceEntity> Attendance { get; set; }
@@ -24,5 +27,35 @@ namespace HRMS.Infrastructure.Persistence
         public DbSet<RolePermissionEntity> RolePermission { get; set; }
         public DbSet<UserRoleEntity> UserRole { get; set; }
 
+
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //    modelBuilder.ApplyConfigurationsFromAssembly(typeof(HRMSDbRepoContext).Assembly);
+        //    ApplyGlobalFilters(modelBuilder);
+        //}
+
+        //private void ApplyGlobalFilters(ModelBuilder modelBuilder)
+        //{
+        //    foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        //    {
+        //        // Check if entity has ClientId
+        //        if (typeof(IClientService).IsAssignableFrom(entityType.ClrType))
+        //        {
+        //            var method = typeof(HRMSDbRepoContext)
+        //                .GetMethod(nameof(SetClientFilter), BindingFlags.NonPublic | BindingFlags.Instance)
+        //                .MakeGenericMethod(entityType.ClrType);
+
+        //            method.Invoke(this, new object[] { modelBuilder });
+        //        }
+        //    }
+        //}
+
+        //private void SetClientFilter<TEntity>(ModelBuilder modelBuilder)
+        //    where TEntity : class, IClientService
+        //{
+        //    modelBuilder.Entity<TEntity>()
+        //        .HasQueryFilter(e => e.ClientId == _clientId);
+        //}
     }
 }

@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HRMS.Domain.Entities
 {
-    [Index(nameof(ClientCode), IsUnique = true)]
-    [Index(nameof(ClientName), IsUnique = true)]
-    [Index(nameof(Email), IsUnique = true)]
+    [Index(nameof(ClientKey), IsUnique = true)]
+    [Index(nameof(CompanyName), IsUnique = true)]
+    [Index(nameof(CompanyEmail), IsUnique = true)]
     [Index(nameof(Phone), IsUnique = true)]
     public class ClientEntity
     {
@@ -15,37 +15,31 @@ namespace HRMS.Domain.Entities
         public Guid ClientId { get; set; } = Guid.NewGuid();
 
         [Required]
-        [MaxLength(20)]
-        public string ClientCode { get; set; }
+        [MaxLength(3)]
+        public string ClientKey { get; set; }
 
-        [Required]
         [MaxLength(200)]
-        public string ClientName { get; set; }
+        public string? ClientName { get; set; }
 
-        [Required]
         [MaxLength(200)]
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; }
 
         public string? CompanyLogo { get; set; }
 
-        [Required]
         [MaxLength(200)]
-        public string Domain { get; set; }
+        public string? Domain { get; set; }
 
         [MaxLength(200)]
         public string? ContactPerson { get; set; }
 
-        [Required]
         [MaxLength(200)]
         [EmailAddress]
-        public string Email { get; set; }
+        public string? CompanyEmail { get; set; }
 
-        [Required]
         [MaxLength(20)]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
-        [Required]
-        public DateTime ExpiryDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
 
         [MaxLength(50)]
         public string? GSTNumber { get; set; }
@@ -66,6 +60,8 @@ namespace HRMS.Domain.Entities
         public Guid? UpdatedBy { get; set; }
 
         public bool? IsSynced { get; set; }
+         [Required]
+        public bool IsCompanyProfileCreated { get; set; } = false;
     }
 }
 

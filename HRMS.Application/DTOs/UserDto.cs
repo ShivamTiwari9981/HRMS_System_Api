@@ -3,13 +3,14 @@ namespace HRMS.Application.DTOs
 {
     public class UserDto
     {
+        public Guid UserId { get; set; }
+        public Guid ClientId { get; set; }
         public string UserCode { get; set; }
-        public string FullName { get; set; }
         public string UserName { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
-        public Guid RoleId { get; set; }
-        public string? ProfileImagePath { get; set; }
+        public string UserEmail { get; set; }
+        public string PasswordHash { get; set; }
+        public string UserSalt { get; set; }
+        public bool IsCompanyProfileCreated { get; set; }
+        public string RoleName { get; set; }
     }
 }

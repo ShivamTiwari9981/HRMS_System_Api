@@ -15,11 +15,11 @@ namespace HRMS.Application.Validators
                 .WithMessage("User code can contain only letters, numbers, '_' or '-'");
 
             // FullName
-            RuleFor(x => x.FullName)
-                .NotEmpty().WithMessage("Full name is required")
-                .MaximumLength(100)
-                .Matches(@"^[A-Za-z\s]+$")
-                .WithMessage("Full name should contain only letters");
+            //RuleFor(x => x.FullName)
+            //    .NotEmpty().WithMessage("Full name is required")
+            //    .MaximumLength(100)
+            //    .Matches(@"^[A-Za-z\s]+$")
+            //    .WithMessage("Full name should contain only letters");
 
             // UserName
             RuleFor(x => x.UserName)
@@ -31,9 +31,9 @@ namespace HRMS.Application.Validators
 
 
             // Email
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email is required")
-                .EmailAddress().WithMessage("Invalid email format");
+            //RuleFor(x => x.Email)
+            //    .NotEmpty().WithMessage("Email is required")
+            //    .EmailAddress().WithMessage("Invalid email format");
 
             // Phone
             RuleFor(x => x.Phone)

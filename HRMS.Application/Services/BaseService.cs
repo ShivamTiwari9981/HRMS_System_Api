@@ -1,33 +1,32 @@
-﻿using AutoMapper;
-using HRMS.Application.Interfaces;
+﻿using HRMS.Application.Interfaces;
 using HRMS.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-
 namespace HRMS.Application.Services
 {
     public abstract class BaseService
     {
         protected readonly IUnitOfWork _unitOfWork;
-        protected readonly ICurrentSession _currentsession;
-        private IHelperFactory _helperFactory;
-        protected IUnitOfWork UnitOfWork { get { return _helperFactory.UnitOfWork; } }
-        protected BaseService(
-            IUnitOfWork unitOfWork,
-            ICurrentSession currentsession
-            )
+        protected BaseService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _currentsession = currentsession;
         }
-        protected IHelperFactory MyHelperFactory
-        {
-            get
-            {
-                return _helperFactory;
-            }
-        }
-        protected string ClientId => _currentsession.ClientId;
-        protected string UserId => _currentsession.UserId;
+
+        //protected TDestination MapToEntity<TDestination>(object source)
+        //{
+        //    return _mapper.Map<TDestination>(source);
+        //}
+
+        //// Entity → DTO
+        //protected TDestination MapToDto<TDestination>(object source)
+        //{
+        //    return _mapper.Map<TDestination>(source);
+        //}
+
+        //// List mapping
+        //protected List<TDestination> MapList<TDestination>(object source)
+        //{
+        //    return _mapper.Map<List<TDestination>>(source);
+        //}
+        //protected Guid ClientId => _currentsession.ClientId;
+        //protected Guid UserId => _currentsession.UserId;
     }
 }
