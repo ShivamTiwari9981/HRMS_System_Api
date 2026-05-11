@@ -1,9 +1,10 @@
-﻿using HRMS.Domain.Entities;
+﻿using HRMS.Application.DTOs.RequestDto;
+using HRMS.Application.DTOs.ResponseDto;
 
 namespace HRMS.Application.Interfaces
 {
     public interface IUserService
     {
-        //Task<RoleEntity> GetRoleByRoleName(string roleName);
+        ApiResponse<string> AssignRoles(AssignUsersRoleRequestDto dto);
     }
 }

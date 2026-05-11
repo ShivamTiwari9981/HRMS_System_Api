@@ -1,6 +1,6 @@
 ﻿using HRMS.Application.DTOs;
+using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.Interfaces;
-using HRMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.API.Controllers

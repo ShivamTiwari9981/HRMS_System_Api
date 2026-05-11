@@ -1,26 +1,86 @@
 ﻿using HRMS.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static HRMS.Shared.Constants.Global;
 
 namespace HRMS.Application.Services
 {
     public class CurrentUserService : ICurrentUserService
     {
-        private readonly IHttpContextAccessor _http;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CurrentUserService(IHttpContextAccessor http)
+        public CurrentUserService(IHttpContextAccessor httpContextAccessor)
         {
-            _http = http;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public Guid? UserId =>
-            Guid.TryParse(_http.HttpContext?.User?.FindFirst("userId")?.Value, out var id) ? id : null;
+        public Guid ClientId
+        {
+            get
+            {
+                var value = _httpContextAccessor.HttpContext?
+                    .User?
+                    .FindFirst("ClientId")?.Value;
 
-        public Guid? ClientId =>
-            Guid.TryParse(_http.HttpContext?.User?.FindFirst("clientId")?.Value, out var id) ? id : null;
-    }
+                return string.IsNullOrEmpty(value)
+                    ? Guid.Empty
+                    : Guid.Parse(value);
+            }
+        }
+
+        public Guid UserId
+        {
+            get
+            {
+                var value = _httpContextAccessor.HttpContext?
+                    .User?
+                    .FindFirst(Claim_Types.UserId)?.Value;
+
+                return string.IsNullOrEmpty(value)
+                    ? Guid.Empty
+                    : Guid.Parse(value);
+            }
+        }
+
+        public Guid RoleId
+        {
+            get
+            {
+                var value = _httpContextAccessor.HttpContext?
+                    .User?
+                    .FindFirst(Claim_Types.RoleIdKey)?.Value;
+
+                return string.IsNullOrEmpty(value)
+                    ? Guid.Empty
+                    : Guid.Parse(value);
+            }
+        }
+
+        public string ClientKey
+        {
+            get
+            {
+                var value = _httpContextAccessor.HttpContext?
+                    .User?
+                    .FindFirst(Claim_Types.ClientKey)?.Value;
+
+                return string.IsNullOrEmpty(value)
+                    ? string.Empty
+                    : value;
+            }
+        }
+
+    //public int RoleId
+    //    {
+    //        get
+    //        {
+    //            var value = _httpContextAccessor.HttpContext?
+    //                .User?
+    //                .FindFirst(Claim_Types.RoleIdKey)?.Value;
+
+    //            return Convert.ToInt32(value)
+    //                ? 0
+    //                : value;
+    //        }
+    //    }
+    //}
 }

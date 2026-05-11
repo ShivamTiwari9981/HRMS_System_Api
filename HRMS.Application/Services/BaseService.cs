@@ -5,28 +5,17 @@ namespace HRMS.Application.Services
     public abstract class BaseService
     {
         protected readonly IUnitOfWork _unitOfWork;
-        protected BaseService(IUnitOfWork unitOfWork)
+        private ICurrentUserService _currentUserService;
+        protected BaseService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
         }
 
-        //protected TDestination MapToEntity<TDestination>(object source)
-        //{
-        //    return _mapper.Map<TDestination>(source);
-        //}
-
-        //// Entity → DTO
-        //protected TDestination MapToDto<TDestination>(object source)
-        //{
-        //    return _mapper.Map<TDestination>(source);
-        //}
-
-        //// List mapping
-        //protected List<TDestination> MapList<TDestination>(object source)
-        //{
-        //    return _mapper.Map<List<TDestination>>(source);
-        //}
-        //protected Guid ClientId => _currentsession.ClientId;
-        //protected Guid UserId => _currentsession.UserId;
+        
+        protected Guid ClientId => _currentUserService.ClientId;
+        protected Guid UserId => _currentUserService.UserId;
+        protected string ClientKey => _currentUserService.ClientKey;
+        protected Guid RoleId => _currentUserService.RoleId;
     }
 }

@@ -51,6 +51,7 @@ BEGIN
             UserCode,
             UserName,
             UserEmail,
+            @ClientKey as ClientKey,
             PasswordHash,
             UserSalt,
             RoleName

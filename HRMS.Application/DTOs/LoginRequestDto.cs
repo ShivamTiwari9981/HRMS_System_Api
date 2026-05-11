@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace HRMS.Application.DTOs
 {
     public class LoginRequestDto
     {
         [Required]
-        public string ClientKey { get; set; }
+        public string ClientKey { get; set; } = "SHI";
         [Required]
-        public string UserEmail { get; set; }
+        public string UserEmail { get; set; } = "shivamtiwari8756@gmail.com";
         [Required]
-        public string Password { get; set; }
+        public string Password { get; set; } = "12345";
     }
 }

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace HRMS.Domain.Entities
 {
 
-    [Index(nameof(ClientId), nameof(Module), nameof(Action), IsUnique = true)]
+    [Index(nameof(ClientId), nameof(PermissionName), nameof(Action), IsUnique = true)]
     public class PermissionEntity:BaseEntity
     {
         [Key]
@@ -15,14 +15,8 @@ namespace HRMS.Domain.Entities
 
         [Required]
         [MaxLength(100)]
-        public string Module { get; set; }
+        public string PermissionName { get; set; }
 
-        [Required]
-        [MaxLength(50)]
-        public string Action { get; set; }
-
-        // computed key (not mapped in DB if using computed column)
-        public string PermissionKey => $"{Module}_{Action}";
     }
 
 }

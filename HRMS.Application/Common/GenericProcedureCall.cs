@@ -10,41 +10,16 @@ namespace HRMS.Application.Common
         #region StoredProcedureName
         public static class StoredProcedure
         {
-
             public const string sp_GenerateMasterCode = "sp_GenerateMasterCode";
             public const string Sp_Sign_Up = "Sp_Sign_Up";
             public const string Sp_User_Login = "Sp_User_Login";
-            public const string Sp_GetBranchById = "Sp_GetBranchById";
-            public const string Sp_AddBranch = "Sp_AddBranch";
-
-
-            public const string Sp_AddUser = "Sp_Add_User";
-            public const string Sp_Add_Default_User = "Sp_Add_Default_User";
-            public const string Sp_GetModul_SubModule = "Sp_GetModul_SubModule";
-            public const string Sp_Get_Role = "Sp_Get_Role";
-            public const string SP_GET_CLIENT = "SP_GET_CLIENT";
-            public const string SP_GET_CLIENT_BY_ID = "SP_GET_CLIENT_BY_ID";
-            public const string SP_ADD_UPDATE_ROLE = "SP_ADD_UPDATE_ROLE";
-
-            public const string Sp_Get_Menu = "Sp_Get_Menu";
+            public const string Sp_Register_Client = "Sp_Register_Client";
+            public const string sp_AssignRolePermissions_TVP = "sp_AssignRolePermissions_TVP";
+            public const string sp_AssignBulkUserRoles = "sp_AssignBulkUserRoles";
+            public const string sp_GetUserRolePermissions = "sp_GetUserRolePermissions";
         }
         #endregion
-        //public static async Task<T> UseConnectionAsync<T>(DbContext context, Func<DbConnection, Task<T>> action)
-        //{
-        //    var connection = context.Database.GetDbConnection();
-        //    try
-        //    {
-        //        if (connection.State != ConnectionState.Open)
-        //            await connection.OpenAsync();
 
-        //        return await action(connection);
-        //    }
-        //    finally
-        //    {
-        //        if (connection.State == ConnectionState.Open)
-        //            await connection.CloseAsync();
-        //    }
-        //}
         #region StoredProcedure
         public static DataSet ExecuteStoredProcedure(string storedProcedureName, IEnumerable<SqlParameter> parameters, DbConnection dbConnection, DbTransaction dbTransaction)
         {
@@ -85,6 +60,7 @@ namespace HRMS.Application.Common
                 }
             }
         }
+
         public static DataTable ExecuteFunctionProcedure(string functionProcedureName, IEnumerable<SqlParameter> parameters, DbConnection dbConnection)
         {
             var ds = new DataSet();
@@ -118,6 +94,94 @@ namespace HRMS.Application.Common
                 var result = cmd.ExecuteScalar().ToString();
                 dbConnection.Close();
                 return result;
+            }
+        }
+        #endregion
+
+        #region AsyncProcedure 
+        public static async Task<int> ExecuteStoredProcedureAsync(
+    string procedureName,
+    List<SqlParameter> parameters,
+    DbConnection connection)
+        {
+            try
+            {
+                using var command = connection.CreateCommand();
+
+                command.CommandText = procedureName;
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                if (parameters != null && parameters.Any())
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        command.Parameters.Add(parameter);
+                    }
+                }
+
+                if (connection.State != ConnectionState.Open)
+                {
+                    await connection.OpenAsync();
+                }
+
+                return await command.ExecuteNonQueryAsync();
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Open)
+                {
+                    await connection.CloseAsync();
+                }
+            }
+        }
+
+
+        public static async Task<DataSet> ExecuteStoredProcedureDataSetAsync(string procedureName, List<SqlParameter> parameters, DbConnection connection)
+        {
+            var dataSet = new DataSet();
+
+            try
+            {
+                using var command = connection.CreateCommand();
+
+                command.CommandText = procedureName;
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                if (parameters != null && parameters.Any())
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        command.Parameters.Add(parameter);
+                    }
+                }
+
+                if (connection.State != ConnectionState.Open)
+                {
+                    await connection.OpenAsync();
+                }
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                do
+                {
+                    var table = new DataTable();
+
+                    table.Load(reader);
+
+                    dataSet.Tables.Add(table);
+
+                } while (!reader.IsClosed && await reader.NextResultAsync());
+
+                return dataSet;
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Open)
+                {
+                    await connection.CloseAsync();
+                }
             }
         }
         #endregion

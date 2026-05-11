@@ -9,6 +9,11 @@
             public static string UserId = "UserId";
             public static string UserName = "UserName";
             public static string RoleName = "RoleName";
+            public static string ClientKey = "ClientKey";
+            public static string RoleIdKey = "RoleIdKey";
+            public static string Permission = "Permission";
+
+
             public static string IsCompanyProfileCreated = "IsCompanyProfileCreated";
         }
         public static class MasterTable
