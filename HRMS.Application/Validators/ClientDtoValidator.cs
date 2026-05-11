@@ -39,7 +39,7 @@ namespace HRMS.Application.Validators
                 .When(x => !string.IsNullOrWhiteSpace(x.ContactPerson));
 
             // Email
-            RuleFor(x => x.Email)
+            RuleFor(x => x.ClientEmail)
                 .NotEmpty().WithMessage("Email is required")
                 .EmailAddress().WithMessage("Invalid email format");
 

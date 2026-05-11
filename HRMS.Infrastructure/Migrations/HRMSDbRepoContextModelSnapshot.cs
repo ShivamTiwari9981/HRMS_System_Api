@@ -90,13 +90,16 @@ namespace HRMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ClientCode")
+                    b.Property<string>("ClientKey")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("ClientName")
-                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CompanyEmail")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -104,7 +107,6 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyName")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -119,16 +121,10 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Domain")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("ExpiryDate")
+                    b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GSTNumber")
@@ -138,11 +134,13 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsCompanyProfileCreated")
+                        .HasColumnType("bit");
+
                     b.Property<bool?>("IsSynced")
                         .HasColumnType("bit");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -154,17 +152,20 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.HasKey("ClientId");
 
-                    b.HasIndex("ClientCode")
+                    b.HasIndex("ClientKey")
                         .IsUnique();
 
-                    b.HasIndex("ClientName")
-                        .IsUnique();
+                    b.HasIndex("CompanyEmail")
+                        .IsUnique()
+                        .HasFilter("[CompanyEmail] IS NOT NULL");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                    b.HasIndex("CompanyName")
+                        .IsUnique()
+                        .HasFilter("[CompanyName] IS NOT NULL");
 
                     b.HasIndex("Phone")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Phone] IS NOT NULL");
 
                     b.ToTable("Client");
                 });
@@ -717,17 +718,11 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("FailedLoginAttempts")
+                    b.Property<int?>("FailedLoginAttempts")
                         .HasMaxLength(3)
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -748,11 +743,14 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("ProfileImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -766,6 +764,11 @@ namespace HRMS.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -777,13 +780,14 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("ClientId", "Email")
-                        .IsUnique();
-
                     b.HasIndex("ClientId", "Phone")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Phone] IS NOT NULL");
 
                     b.HasIndex("ClientId", "UserCode")
+                        .IsUnique();
+
+                    b.HasIndex("ClientId", "UserEmail")
                         .IsUnique();
 
                     b.HasIndex("ClientId", "UserName")

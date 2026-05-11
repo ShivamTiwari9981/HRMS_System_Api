@@ -21,9 +21,4 @@
     <ProjectReference Include="..\HRMS.Shared\HRMS.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Middleware\" />
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>

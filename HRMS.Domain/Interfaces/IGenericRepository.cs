@@ -4,13 +4,20 @@ namespace HRMS.Domain.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {
-        Task<T?> GetByIdAsync(Guid id);
-        Task<IReadOnlyList<T>> GetAllAsync();
+        // Read
+        Task<T?> GetByIdAsync(object id);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+        Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 
-        Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate);
-
+        // Write
         Task AddAsync(T entity);
+        Task AddRangeAsync(IEnumerable<T> entities);
         void Update(T entity);
-        void Delete(T entity);
+        void Remove(T entity);
+        void RemoveRange(IEnumerable<T> entities);
+
+        // Query (optional advanced)
+        IQueryable<T> Query(); // ⚠️ use carefully
     }
 }

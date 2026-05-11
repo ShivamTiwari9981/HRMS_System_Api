@@ -1,4 +1,5 @@
-﻿using HRMS.Domain.Interfaces;
+﻿using HRMS.Application.Interfaces;
+using HRMS.Domain.Interfaces;
 using HRMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -8,35 +9,54 @@ namespace HRMS.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly HRMSDbRepoContext _context;
-        private readonly DbSet<T> _dbSet;
-        private readonly ICurrentSession _currentSession;
+        protected readonly HRMSDbRepoContext _context;
+        protected readonly DbSet<T> _dbSet;
+        protected readonly ICurrentUserService _currentUser;
 
-        public GenericRepository(HRMSDbRepoContext context, ICurrentSession currentSession)
+        public GenericRepository(HRMSDbRepoContext context, ICurrentUserService currentUser)
         {
             _context = context;
             _dbSet = context.Set<T>();
-            _currentSession = currentSession;
+            _currentUser = currentUser;
         }
 
-        public async Task<T?> GetByIdAsync(Guid id)
+        public GenericRepository(HRMSDbRepoContext context)
+        {
+            _context = context;
+        }
+
+        // -------------------- READ --------------------
+
+        public async Task<T?> GetByIdAsync(object id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<IReadOnlyList<T>> GetAllAsync()
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate)
+        public async Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
+
+        // -------------------- WRITE --------------------
+
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
         }
 
         public void Update(T entity)
@@ -44,9 +64,21 @@ namespace HRMS.Infrastructure.Repositories
             _dbSet.Update(entity);
         }
 
-        public void Delete(T entity)
+        public void Remove(T entity)
         {
             _dbSet.Remove(entity);
+        }
+
+        public void RemoveRange(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
+
+        // -------------------- ADVANCED --------------------
+
+        public IQueryable<T> Query()
+        {
+            return _dbSet.AsQueryable();
         }
     }
 }

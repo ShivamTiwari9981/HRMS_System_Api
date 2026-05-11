@@ -17,7 +17,7 @@ namespace HRMS.Application.DTOs
         public string ClientName { get; set; }
         public string Domain { get; set; }
         public string? ContactPerson { get; set; }
-        public string Email { get; set; }
+        public string ClientEmail { get; set; }
         public string Phone { get; set; }
         public DateTime ExpiryDate { get; set; } = DateTime.UtcNow.AddDays(15);
         public string? Address { get; set; }

@@ -1,8 +1,10 @@
 
-using HRMS.Application.Services;
+using HRMS.API.Extensions;
+using HRMS.Application.Mapper;
 using HRMS.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -20,11 +22,10 @@ namespace HRMS.API
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"));
             });
-
-            RegisterServices.RegisterService(builder.Services);
-            RegisterRepoService.RegisterService(builder.Services);
+          
+            RegisterServicesExtension.RegisterService(builder.Services);
             builder.Services.AddHttpContextAccessor();
-
+            
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -38,6 +39,7 @@ namespace HRMS.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
             });
+            //builder.Services.AddFluentValidationAutoValidation(); 
             builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
@@ -72,15 +74,13 @@ namespace HRMS.API
         });
             });
 
-
-
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-
+            
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{
@@ -99,11 +99,9 @@ namespace HRMS.API
                 }
                 await next();
             });
-
+            app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
+            app.UseApplicationMiddlewares();
 
             app.MapControllers();
 

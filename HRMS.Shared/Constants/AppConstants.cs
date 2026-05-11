@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HRMS.Infrastructure.Repositories
+namespace HRMS.Shared.Constants
 {
-    internal class UserRepository
+    public static class AppConstants
     {
+        public const string ClientHeader = "X-Client-Id";
     }
 }
