@@ -2,6 +2,7 @@
 using HRMS.API.Extensions;
 using HRMS.Infrastructure.Persistence;
 using HRMS.Infrastructure.Persistence.Seeders;
+using HRMS.Shared.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,7 +22,10 @@ namespace HRMS.API
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"));
             });
-          
+
+            builder.Services.Configure<LoggingSettings>(
+            builder.Configuration.GetSection("LoggingSettings"));
+
             RegisterServicesExtension.RegisterService(builder.Services);
             builder.Services.AddHttpContextAccessor();
             

@@ -67,7 +67,7 @@ namespace HRMS.Application.Services
                 return ApiResponse<string>.Fail(500, ex.Message);
             }
         }
-        public async Task<ApiResponse<ClientRolePermissionDto>> Login(LoginRequestDto dto)
+        public ApiResponse<ClientRolePermissionDto> Login(LoginRequestDto dto)
         {
             int err_no = 0;
             string err_msg = string.Empty;

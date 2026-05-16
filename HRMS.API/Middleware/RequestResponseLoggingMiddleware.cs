@@ -1,13 +1,17 @@
-﻿using System.Text;
+﻿using HRMS.Shared.Configuration;
+using Microsoft.Extensions.Options;
+using System.Text;
 
 public class RequestResponseLoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly string _filePath;
+    private readonly LoggingSettings _settings;
 
-    public RequestResponseLoggingMiddleware(RequestDelegate next)
+    public RequestResponseLoggingMiddleware(RequestDelegate next, IOptions<LoggingSettings> options)
     {
         _next = next;
+        _settings = options.Value;
         _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Logs", "log.txt");
     }
 
@@ -15,6 +19,13 @@ public class RequestResponseLoggingMiddleware
     {
         try
         {
+            
+            if (!_settings.IsWriteLog)
+            {
+                await _next(context);
+                return;
+            }
+
             // Create folder if not exists
             if (!Directory.Exists("Logs"))
                 Directory.CreateDirectory("Logs");
