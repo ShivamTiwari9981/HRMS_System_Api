@@ -11,7 +11,11 @@ namespace HRMS.Application.ExtensionMapper
         {
             return new PermissionEntity
             {
-                PermissionName = dto.PermissionName,
+                PermissionId = dto.PermissionId,
+                MenuId = dto.MenuId,
+                Action=dto.Action,
+                PermissionKey = dto.PermissionKey,
+                Description = dto.Description,
                 ClientId = clientId,
                 CreatedBy = userId,
             };
@@ -21,8 +25,12 @@ namespace HRMS.Application.ExtensionMapper
         {
             return entities.Select(x => new PermissionResponseDto
             { 
+
                 PermissionId = x.PermissionId,
-                PermissionName = x.PermissionName,
+                MenuId = x.MenuId,
+                Action = x.Action,
+                PermissionKey = x.PermissionKey,
+                Description = x.Description,
             }).ToList();
         }
 
@@ -31,7 +39,10 @@ namespace HRMS.Application.ExtensionMapper
             return new PermissionResponseDto
             {
                 PermissionId = entity.PermissionId,
-                PermissionName = entity.PermissionName,
+                MenuId = entity.MenuId,
+                Action = entity.Action,
+                PermissionKey = entity.PermissionKey,
+                Description = entity.Description,
             };
         }
 

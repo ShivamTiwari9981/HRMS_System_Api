@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,7 +8,7 @@ namespace HRMS.Domain.Entities
     public class UserRoleEntity:BaseEntity
     {
         [Key]
-        public Guid UserRoleId { get; set; } = new Guid();
+        public Guid UserRoleId { get; set; } = Guid.NewGuid();
         public Guid ClientId { get; set; }
 
         public Guid UserId { get; set; }
@@ -18,9 +16,9 @@ namespace HRMS.Domain.Entities
         public Guid RoleId { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public UserEntity User { get; set; }
+        public virtual UserEntity User { get; set; } = null!;
 
         [ForeignKey(nameof(RoleId))]
-        public RoleEntity Role { get; set; }
+        public virtual RoleEntity Role { get; set; } = null!;
     }
 }

@@ -13,9 +13,11 @@ namespace HRMS.API.Controllers
     public class ClientController : ControllerBase
     {
         private readonly IClientService _clientService;
-        public ClientController(IClientService clientService)
+        private readonly IAuthService _authService;
+        public ClientController(IClientService clientService, IAuthService authService)
         {
             _clientService = clientService;
+            _authService = authService;
         }
 
         [Authorize]
@@ -30,7 +32,12 @@ namespace HRMS.API.Controllers
             if (!result.IsSuccess)
                 return BadRequest(result);
 
-            return Ok(result);
+            if(result.IsSuccess)
+            {
+                var data =_authService.GetUserRolePermissionsAsync(result.Data.ClientId,result.Data.UserId);
+                return Ok(data);
+            }
+            return BadRequest(result);
         }
     }
 }

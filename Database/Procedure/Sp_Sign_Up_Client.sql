@@ -10,7 +10,9 @@ CREATE PROCEDURE Sp_Sign_Up_Client
     @Err_Msg VARCHAR(MAX) OUTPUT 
 AS  
 BEGIN  
-    SET NOCOUNT ON;  
+    SET NOCOUNT ON; 
+    DECLARE @Per_Err_No INT,
+    DECLARE @Per_Err_Msg VARCHAR(MAX) 
 
     BEGIN TRY  
         DECLARE @IsActive BIT;
@@ -37,6 +39,18 @@ BEGIN
         (
             @ClientId,@ClientKey,0, 1,GETUTCDATE(), @CreatedBy
         );  
+
+
+        -- Create Permission
+         EXEC Sp_Create_Permission 
+            @ClientId = @ClientId,
+            @CreatedBy=@CreatedBy,
+            @Err_No = @Per_Err_No OUTPUT,
+            @Err_Msg = @Err_Msg OUTPUT;
+
+         IF @Per_Err_No <> 0
+            THROW 50001, @Err_Msg, 1;
+
         SET @Err_Msg = 'Comapny Created';  
         SET @Err_No = 0;  
 

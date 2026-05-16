@@ -20,8 +20,8 @@ namespace HRMS.Application.ExtensionMapper
         {
             return entities.Select(x => new RoleResponseDto
             {
-                RoleId = x.RoleId,
-                RoleName = x.RoleName,
+                RoleIds = x.RoleId,
+                RoleNames = x.RoleName,
             }).ToList();
         }
     }

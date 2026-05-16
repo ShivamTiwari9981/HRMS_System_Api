@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS.Infrastructure.Migrations
 {
     [DbContext(typeof(HRMSDbRepoContext))]
-    [Migration("20260504101505_MigrationName")]
-    partial class MigrationName
+    [Migration("20260512110421_AddRequiredFieldfromclient")]
+    partial class AddRequiredFieldfromclient
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,18 +93,18 @@ namespace HRMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ClientCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("ClientName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("CompanyEmail")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("CompanyLogo")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("CompanyName")
                         .IsRequired()
@@ -112,6 +112,7 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ContactPerson")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -126,12 +127,7 @@ namespace HRMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("ExpiryDate")
+                    b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GSTNumber")
@@ -157,13 +153,11 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.HasKey("ClientId");
 
-                    b.HasIndex("ClientCode")
-                        .IsUnique();
+                    b.HasIndex("CompanyEmail")
+                        .IsUnique()
+                        .HasFilter("[CompanyEmail] IS NOT NULL");
 
-                    b.HasIndex("ClientName")
-                        .IsUnique();
-
-                    b.HasIndex("Email")
+                    b.HasIndex("CompanyName")
                         .IsUnique();
 
                     b.HasIndex("Phone")
@@ -420,13 +414,8 @@ namespace HRMS.Infrastructure.Migrations
 
             modelBuilder.Entity("HRMS.Domain.Entities.MenuEntity", b =>
                 {
-                    b.Property<int>("MenuId")
+                    b.Property<Guid>("MenuId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MenuId"));
-
-                    b.Property<Guid>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -444,6 +433,9 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<bool?>("IsSynced")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MenuIcon")
                         .HasColumnType("nvarchar(max)");
 
@@ -452,11 +444,15 @@ namespace HRMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("ParentMenuId")
+                    b.Property<int>("MenuType")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("ParentMenuId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("RouterLink")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -466,57 +462,11 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.HasKey("MenuId");
 
-                    b.HasIndex("ParentMenuId");
-
-                    b.HasIndex("ClientId", "MenuName")
-                        .IsUnique();
+                    b.HasIndex("ParentMenuId", "MenuName")
+                        .IsUnique()
+                        .HasFilter("[ParentMenuId] IS NOT NULL");
 
                     b.ToTable("Menu");
-                });
-
-            modelBuilder.Entity("HRMS.Domain.Entities.MenuPermissionMappingEntity", b =>
-                {
-                    b.Property<Guid>("MenuPermissionMappingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsSynced")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("MenuId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("MenuPermissionMappingId");
-
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.HasIndex("ClientId", "MenuId", "PermissionId")
-                        .IsUnique();
-
-                    b.ToTable("MenuPermissionMapping");
                 });
 
             modelBuilder.Entity("HRMS.Domain.Entities.PayrollEntity", b =>
@@ -581,10 +531,9 @@ namespace HRMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Action")
+                        .HasMaxLength(200)
+                        .HasColumnType("int");
 
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uniqueidentifier");
@@ -595,16 +544,23 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool?>("IsSynced")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Module")
+                    b.Property<Guid>("MenuId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PermissionKey")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -614,7 +570,9 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.HasKey("PermissionId");
 
-                    b.HasIndex("ClientId", "Module", "Action")
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("ClientId", "MenuId", "Action")
                         .IsUnique();
 
                     b.ToTable("Permission");
@@ -639,6 +597,9 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool?>("IsSynced")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSystemRole")
                         .HasColumnType("bit");
 
                     b.Property<string>("RoleName")
@@ -711,7 +672,7 @@ namespace HRMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ClientId")
+                    b.Property<Guid?>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -720,21 +681,18 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("FailedLoginAttempts")
+                    b.Property<int?>("FailedLoginAttempts")
                         .HasMaxLength(3)
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCompanyProfileCreated")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsLocked")
@@ -751,7 +709,6 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -765,9 +722,13 @@ namespace HRMS.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserCode")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -780,17 +741,21 @@ namespace HRMS.Infrastructure.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("ClientId", "Email")
-                        .IsUnique();
-
                     b.HasIndex("ClientId", "Phone")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[ClientId] IS NOT NULL AND [Phone] IS NOT NULL");
 
                     b.HasIndex("ClientId", "UserCode")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[ClientId] IS NOT NULL AND [UserCode] IS NOT NULL");
+
+                    b.HasIndex("ClientId", "UserEmail")
+                        .IsUnique()
+                        .HasFilter("[ClientId] IS NOT NULL");
 
                     b.HasIndex("ClientId", "UserName")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[ClientId] IS NOT NULL");
 
                     b.ToTable("User");
                 });
@@ -893,35 +858,27 @@ namespace HRMS.Infrastructure.Migrations
                     b.Navigation("ParentMenu");
                 });
 
-            modelBuilder.Entity("HRMS.Domain.Entities.MenuPermissionMappingEntity", b =>
+            modelBuilder.Entity("HRMS.Domain.Entities.PermissionEntity", b =>
                 {
                     b.HasOne("HRMS.Domain.Entities.MenuEntity", "Menu")
-                        .WithMany()
+                        .WithMany("Permissions")
                         .HasForeignKey("MenuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HRMS.Domain.Entities.PermissionEntity", "Permission")
-                        .WithMany()
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Menu");
-
-                    b.Navigation("Permission");
                 });
 
             modelBuilder.Entity("HRMS.Domain.Entities.RolePermissionEntity", b =>
                 {
                     b.HasOne("HRMS.Domain.Entities.PermissionEntity", "Permission")
-                        .WithMany()
+                        .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("HRMS.Domain.Entities.RoleEntity", "Role")
-                        .WithMany()
+                        .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -931,21 +888,10 @@ namespace HRMS.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("HRMS.Domain.Entities.UserEntity", b =>
-                {
-                    b.HasOne("HRMS.Domain.Entities.ClientEntity", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
-                });
-
             modelBuilder.Entity("HRMS.Domain.Entities.UserRoleEntity", b =>
                 {
                     b.HasOne("HRMS.Domain.Entities.RoleEntity", "Role")
-                        .WithMany()
+                        .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -964,6 +910,20 @@ namespace HRMS.Infrastructure.Migrations
             modelBuilder.Entity("HRMS.Domain.Entities.MenuEntity", b =>
                 {
                     b.Navigation("Children");
+
+                    b.Navigation("Permissions");
+                });
+
+            modelBuilder.Entity("HRMS.Domain.Entities.PermissionEntity", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
+            modelBuilder.Entity("HRMS.Domain.Entities.RoleEntity", b =>
+                {
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

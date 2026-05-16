@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
 using System.ComponentModel.DataAnnotations;
-//using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Domain.Entities
 {
-    [Index(nameof(ClientKey), IsUnique = true)]
     [Index(nameof(CompanyName), IsUnique = true)]
     [Index(nameof(CompanyEmail), IsUnique = true)]
     [Index(nameof(Phone), IsUnique = true)]
@@ -15,29 +12,33 @@ namespace HRMS.Domain.Entities
         public Guid ClientId { get; set; } = Guid.NewGuid();
 
         [Required]
-        [MaxLength(3)]
-        public string ClientKey { get; set; }
+        [MaxLength(200)]
+        public string ClientName { get; set; }
+
+
+        [Required]
+        [MaxLength(200)]
+        public string CompanyName { get; set; }
 
         [MaxLength(200)]
-        public string? ClientName { get; set; }
-
-        [MaxLength(200)]
-        public string? CompanyName { get; set; }
-
         public string? CompanyLogo { get; set; }
 
+        [Required]
         [MaxLength(200)]
-        public string? Domain { get; set; }
+        public string Domain { get; set; }
 
+
+        [Required]
         [MaxLength(200)]
-        public string? ContactPerson { get; set; }
+        public string ContactPerson { get; set; }
 
         [MaxLength(200)]
         [EmailAddress]
-        public string? CompanyEmail { get; set; }
+        public string CompanyEmail { get; set; }
 
+        [Required]
         [MaxLength(20)]
-        public string? Phone { get; set; }
+        public string Phone { get; set; }
 
         public DateTime? ExpiryDate { get; set; }
 
@@ -45,7 +46,7 @@ namespace HRMS.Domain.Entities
         public string? GSTNumber { get; set; }
 
         [MaxLength(200)]
-        public string? Address { get; set; }
+        public string Address { get; set; }
 
         public bool? IsActive { get; set; } = true;
 
@@ -60,8 +61,7 @@ namespace HRMS.Domain.Entities
         public Guid? UpdatedBy { get; set; }
 
         public bool? IsSynced { get; set; }
-         [Required]
-        public bool IsCompanyProfileCreated { get; set; } = false;
+        
     }
 }
 

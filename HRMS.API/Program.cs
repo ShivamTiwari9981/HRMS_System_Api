@@ -1,10 +1,9 @@
 
 using HRMS.API.Extensions;
-using HRMS.Application.Mapper;
 using HRMS.Infrastructure.Persistence;
+using HRMS.Infrastructure.Persistence.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -13,7 +12,7 @@ namespace HRMS.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -80,7 +79,16 @@ namespace HRMS.API
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-            
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                var context = services.GetRequiredService<HRMSDbRepoContext>();
+
+               await DatabaseSeeder.SeedAsync(context);
+            }
+
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{

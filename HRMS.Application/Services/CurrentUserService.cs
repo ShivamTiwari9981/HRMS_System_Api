@@ -69,18 +69,19 @@ namespace HRMS.Application.Services
             }
         }
 
-    //public int RoleId
-    //    {
-    //        get
-    //        {
-    //            var value = _httpContextAccessor.HttpContext?
-    //                .User?
-    //                .FindFirst(Claim_Types.RoleIdKey)?.Value;
+        //public int RoleId
+        //    {
+        //        get
+        //        {
+        //            var value = _httpContextAccessor.HttpContext?
+        //                .User?
+        //                .FindFirst(Claim_Types.RoleIdKey)?.Value;
 
-    //            return Convert.ToInt32(value)
-    //                ? 0
-    //                : value;
-    //        }
-    //    }
-    //}
+        //            return Convert.ToInt32(value)
+        //                ? 0
+        //                : value;
+        //        }
+        //    }
+        //}
+    }
 }

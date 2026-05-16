@@ -5,17 +5,17 @@
 namespace HRMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class PhoneNullable : Migration
+    public partial class NullableUserCodeInUserTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_User_ClientId_Phone",
+                name: "IX_User_ClientId_UserCode",
                 table: "User");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Phone",
+                name: "UserCode",
                 table: "User",
                 type: "nvarchar(20)",
                 maxLength: 20,
@@ -25,22 +25,22 @@ namespace HRMS.Infrastructure.Migrations
                 oldMaxLength: 20);
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_ClientId_Phone",
+                name: "IX_User_ClientId_UserCode",
                 table: "User",
-                columns: new[] { "ClientId", "Phone" },
+                columns: new[] { "ClientId", "UserCode" },
                 unique: true,
-                filter: "[ClientId] IS NOT NULL AND [Phone] IS NOT NULL");
+                filter: "[ClientId] IS NOT NULL AND [UserCode] IS NOT NULL");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_User_ClientId_Phone",
+                name: "IX_User_ClientId_UserCode",
                 table: "User");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Phone",
+                name: "UserCode",
                 table: "User",
                 type: "nvarchar(20)",
                 maxLength: 20,
@@ -52,9 +52,9 @@ namespace HRMS.Infrastructure.Migrations
                 oldNullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_ClientId_Phone",
+                name: "IX_User_ClientId_UserCode",
                 table: "User",
-                columns: new[] { "ClientId", "Phone" },
+                columns: new[] { "ClientId", "UserCode" },
                 unique: true,
                 filter: "[ClientId] IS NOT NULL");
         }

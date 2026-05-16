@@ -5,8 +5,6 @@ DROP PROCEDURE IF EXISTS sp_AssignRolePermissions_TVP;
 --    PermissionId UNIQUEIDENTIFIER
 --)
 Go
-
-
 CREATE PROCEDURE sp_AssignRolePermissions_TVP
 (
     @ClientId UNIQUEIDENTIFIER,
@@ -25,7 +23,7 @@ BEGIN
         BEGIN TRANSACTION;
 
         DELETE FROM RolePermission
-        WHERE RoleId = @RoleId;
+        WHERE RoleId = @RoleId and ClientId = @ClientId;
 
         INSERT INTO RolePermission
         (

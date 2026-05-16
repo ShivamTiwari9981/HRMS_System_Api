@@ -48,9 +48,9 @@ namespace HRMS.API.Controllers
         }
 
         [HttpPost("assign-permissions")]
-        public async Task<IActionResult> AssignPermissions(AssignRolePermissionRequestDto dto)
+        public IActionResult AssignPermissions(AssignRolePermissionRequestDto dto)
         {
-            var result = await _roleService
+            var result =  _roleService
                 .AssignPermissions(dto);
 
             return Ok(result);

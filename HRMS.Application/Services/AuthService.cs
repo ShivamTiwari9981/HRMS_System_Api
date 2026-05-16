@@ -15,7 +15,6 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using static HRMS.Application.Common.GenericProcedureCall;
 using static HRMS.Shared.Constants.Global;
 
@@ -39,7 +38,6 @@ namespace HRMS.Application.Services
 
                 var param = new List<SqlParameter>
                 {
-                    new SqlParameter("@ClientKey", dto.ClientKey),
                     new SqlParameter("@UserName", dto.UserName),
                     new SqlParameter("@UserEmail", dto.UserEmail),
                     new SqlParameter("@HashPassword", pwdResult.hash),
@@ -69,16 +67,16 @@ namespace HRMS.Application.Services
                 return ApiResponse<string>.Fail(500, ex.Message);
             }
         }
-        public ApiResponse<LoginResponseDto> Login(LoginRequestDto dto)
+        public async Task<ApiResponse<ClientRolePermissionDto>> Login(LoginRequestDto dto)
         {
             int err_no = 0;
             string err_msg = string.Empty;
+            ClientRolePermissionDto usrRoleResult = new ClientRolePermissionDto();
 
             try
             {
                 var param = new List<SqlParameter>
                 {
-                    new SqlParameter("@ClientKey", dto.ClientKey),
                     new SqlParameter("@UserEmail", dto.UserEmail),
 
                 new SqlParameter("@ErrNumber", SqlDbType.Int)
@@ -102,92 +100,73 @@ namespace HRMS.Application.Services
                 err_msg = param.First(p => p.ParameterName == "@ErrMsg").Value?.ToString() ?? "";
 
                 if (err_no != 0)
-                    return ApiResponse<LoginResponseDto>.Fail(err_no, err_msg);
+                    return ApiResponse<ClientRolePermissionDto>.Fail(err_no, err_msg);
 
                 var userDto = CommonMethod
                     .ConvertToList<UserDto>(result.Tables[0])
                     .FirstOrDefault();
 
                 if (userDto == null)
-                    return ApiResponse<LoginResponseDto>.Fail(1, "Invalid email or password");
+                    return ApiResponse<ClientRolePermissionDto>.Fail(1, "Invalid email or password");
 
                 // Verify password
                 if (!PasswordHelper.VerifyPassword(dto.Password, userDto.PasswordHash, userDto.UserSalt))
-                    return ApiResponse<LoginResponseDto>.Fail(1, "Invalid email or password");
+                    return ApiResponse<ClientRolePermissionDto>.Fail(1, "Invalid email or password");
 
                 // Generate token
-                string token = GenerateToken(userDto);
+                if (userDto.IsCompanyProfileCreated)
+                    usrRoleResult =  GetUserRolePermissionsAsync(userDto.ClientId,userDto.UserId);
 
-                var responseDto = new LoginResponseDto(userDto, token);
-
-                return ApiResponse<LoginResponseDto>.Success(responseDto, "Login successful");
+                else
+                {
+                    usrRoleResult.clientUserResponse.UserId=userDto.UserId;
+                    usrRoleResult.clientUserResponse.ClientId=userDto.ClientId;
+                    usrRoleResult.clientUserResponse.UserName=userDto.UserName;
+                    usrRoleResult.clientUserResponse.IsCompanyProfileCreated=userDto.IsCompanyProfileCreated;
+                    string token =  GenerateToken(usrRoleResult);
+                    usrRoleResult.Token = token;
+                }
+               return ApiResponse<ClientRolePermissionDto>.Success(usrRoleResult, "Login successful");
             }
             catch (Exception ex)
             {
-                return ApiResponse<LoginResponseDto>.Fail(500, ex.Message);
+                return ApiResponse<ClientRolePermissionDto>.Fail(500, ex.Message);
             }
         }
-
-
-        private async Task<(List<RoleResponseDto> roleResponseDto,List<RolePermissionResponseDto> rolePermissionResponseDto)>GetUserRolePermissionsAsync(Guid userId)
+        public ClientRolePermissionDto GetUserRolePermissionsAsync(Guid clientId,Guid userId)
         {
-            List<RoleResponseDto> userRoles = new();
-            List<RolePermissionResponseDto> permissions = new();
+           
+            ClientRolePermissionDto clientRole = new();
 
             var parameters = new List<SqlParameter>
             {
-                new SqlParameter("@ClientId", ClientId),
+                new SqlParameter("@ClientId", clientId),
                 new SqlParameter("@UserId", userId),
             };
 
-            var result = await ExecuteStoredProcedureDataSetAsync(
+            var result =  ExecuteStoredProcedure(
                 StoredProcedure.sp_GetUserRolePermissions,
                 parameters,
                 _unitOfWork.GetConnection());
 
             if (result.Tables.Count > 0)
             {
-                userRoles = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[0]);
-
-                permissions = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[1]);
+                clientRole.clientUserResponse = CommonMethod.ConvertToList<ClientUserResponseDto>(result.Tables[0]).FirstOrDefault();
+                clientRole.RoleResponse = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[1]);
+                clientRole.menuResponse = CommonMethod.ConvertToList<MenuResponseDto>(result.Tables[2]);
+                clientRole.rolePermissionResponse = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[3]);
             }
 
-            return (userRoles, permissions);
+            string token = GenerateToken(clientRole);
+            clientRole.Token = token;
+            return clientRole;
         }
 
-        private (List<RoleResponseDto> roleResponseDto, List<RolePermissionResponseDto> rolePermissionResponseDto) GetUserRolePermissions(Guid UserId)
+        public string GenerateToken(ClientRolePermissionDto result)
         {
             try
             {
-                List<RoleResponseDto> userRoleResponseDto = new List<RoleResponseDto>();
-                List<RolePermissionResponseDto> rolePermissionDto = new List<RolePermissionResponseDto>();
-                var param = new List<SqlParameter>
-                {
-                    new SqlParameter("@ClientId", ClientId),
-                    new SqlParameter("@UserId", UserId),
-                };
-                var result = ExecuteStoredProcedure(StoredProcedure.sp_GetUserRolePermissions, param, _unitOfWork.GetConnection());
-                if (result.Tables.Count > 0)
-                {
-                    userRoleResponseDto = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[0]);
-                    rolePermissionDto = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[1]);
-                }
-
-                return (userRoleResponseDto, rolePermissionDto);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-        private async Task<string> GenerateToken(UserDto dto)
-        {
-            try
-            {
-                var result = await GetUserRolePermissionsAsync(dto.UserId);
-                if (dto == null)
-                    throw new ArgumentNullException(nameof(dto));
-
+               
                 // Get JWT key from configuration
                 var jwtKey = _configuration["Jwt:Key"];
                 var jwtIssuer = _configuration["Jwt:Issuer"];
@@ -204,21 +183,21 @@ namespace HRMS.Application.Services
 
                 var claims = new List<Claim>
                 {
-                      new Claim(ClaimTypes.Name, dto.UserName),
-                      new Claim(Claim_Types.ClientId,dto.ClientId.ToString()),
-                      new Claim(Claim_Types.UserId,dto.UserId.ToString()),
-                      new Claim(Claim_Types.IsCompanyProfileCreated,dto.IsCompanyProfileCreated.ToString())
+                      new Claim(ClaimTypes.Name, result.clientUserResponse.UserName),
+                      new Claim(Claim_Types.ClientId, result.clientUserResponse.ClientId.ToString()??string.Empty),
+                      new Claim(Claim_Types.UserId, result.clientUserResponse.UserId.ToString()),
+                      new Claim(Claim_Types.IsCompanyProfileCreated, result.clientUserResponse.IsCompanyProfileCreated.ToString())
                 };
 
-                foreach (var role in result.roleResponseDto.DistinctBy(x => x.RoleName))
+                foreach (var role in result.RoleResponse.DistinctBy(x => x.RoleNames))
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+                    claims.Add(new Claim(ClaimTypes.Role, role.RoleNames));
                 }
 
                 // Add Permissions
-                foreach (var permission in result.rolePermissionResponseDto.DistinctBy(x => x.PermissionName))
+                foreach (var permission in result.rolePermissionResponse.DistinctBy(x => x.PermissionKey))
                 {
-                    claims.Add(new Claim(Claim_Types.Permission,permission.PermissionName));
+                    claims.Add(new Claim(Claim_Types.Permission, permission.PermissionKey));
                 }
                 // Create and write token
                 var token = new JwtSecurityToken(

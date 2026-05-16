@@ -26,10 +26,5 @@
             public static string Leave = "Leave";
             public static string Payroll = "Payroll";
         }
-        public static class RoleType
-        {
-            public static string Admin = "Admin";
-            
-        }
     }
 }

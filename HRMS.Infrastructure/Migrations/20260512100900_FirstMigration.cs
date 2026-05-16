@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HRMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class MigrationName : Migration
+    public partial class FirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,15 +16,15 @@ namespace HRMS.Infrastructure.Migrations
                 columns: table => new
                 {
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ClientName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    CompanyName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ClientKey = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    ClientName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CompanyName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CompanyLogo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Domain = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Domain = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ContactPerson = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CompanyEmail = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     GSTNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: true),
@@ -32,7 +32,8 @@ namespace HRMS.Infrastructure.Migrations
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsSynced = table.Column<bool>(type: "bit", nullable: true)
+                    IsSynced = table.Column<bool>(type: "bit", nullable: true),
+                    IsCompanyProfileCreated = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,14 +65,14 @@ namespace HRMS.Infrastructure.Migrations
                 name: "Menu",
                 columns: table => new
                 {
-                    MenuId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ParentMenuId = table.Column<int>(type: "int", nullable: true),
+                    MenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ParentMenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MenuName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     MenuIcon = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RouterLink = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RouterLink = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false),
                     DisplayOrder = table.Column<int>(type: "int", nullable: true),
+                    MenuType = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -115,32 +116,13 @@ namespace HRMS.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Permission",
-                columns: table => new
-                {
-                    PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Module = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsSynced = table.Column<bool>(type: "bit", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Permission", x => x.PermissionId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsSystemRole = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -284,14 +266,14 @@ namespace HRMS.Infrastructure.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserSalt = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    UserEmail = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     ProfileImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FailedLoginAttempts = table.Column<int>(type: "int", maxLength: 3, nullable: false),
+                    FailedLoginAttempts = table.Column<int>(type: "int", maxLength: 3, nullable: true),
                     LockoutEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsLocked = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: true),
@@ -313,13 +295,15 @@ namespace HRMS.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MenuPermissionMapping",
+                name: "Permission",
                 columns: table => new
                 {
-                    MenuPermissionMappingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MenuId = table.Column<int>(type: "int", nullable: false),
                     PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MenuId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Action = table.Column<int>(type: "int", maxLength: 200, nullable: false),
+                    PermissionKey = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -329,50 +313,12 @@ namespace HRMS.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MenuPermissionMapping", x => x.MenuPermissionMappingId);
+                    table.PrimaryKey("PK_Permission", x => x.PermissionId);
                     table.ForeignKey(
-                        name: "FK_MenuPermissionMapping_Menu_MenuId",
+                        name: "FK_Permission_Menu_MenuId",
                         column: x => x.MenuId,
                         principalTable: "Menu",
                         principalColumn: "MenuId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MenuPermissionMapping_Permission_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permission",
-                        principalColumn: "PermissionId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RolePermission",
-                columns: table => new
-                {
-                    RolePermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsSynced = table.Column<bool>(type: "bit", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RolePermission", x => x.RolePermissionId);
-                    table.ForeignKey(
-                        name: "FK_RolePermission_Permission_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permission",
-                        principalColumn: "PermissionId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RolePermission_Role_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Role",
-                        principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -408,6 +354,38 @@ namespace HRMS.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RolePermission",
+                columns: table => new
+                {
+                    RolePermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsSynced = table.Column<bool>(type: "bit", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RolePermission", x => x.RolePermissionId);
+                    table.ForeignKey(
+                        name: "FK_RolePermission_Permission_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permission",
+                        principalColumn: "PermissionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RolePermission_Role_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Role",
+                        principalColumn: "RoleId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Attendance_ClientId_AttendanceCode",
                 table: "Attendance",
@@ -421,28 +399,31 @@ namespace HRMS.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Client_ClientCode",
+                name: "IX_Client_ClientKey",
                 table: "Client",
-                column: "ClientCode",
+                column: "ClientKey",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Client_ClientName",
+                name: "IX_Client_CompanyEmail",
                 table: "Client",
-                column: "ClientName",
-                unique: true);
+                column: "CompanyEmail",
+                unique: true,
+                filter: "[CompanyEmail] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Client_Email",
+                name: "IX_Client_CompanyName",
                 table: "Client",
-                column: "Email",
-                unique: true);
+                column: "CompanyName",
+                unique: true,
+                filter: "[CompanyName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Client_Phone",
                 table: "Client",
                 column: "Phone",
-                unique: true);
+                unique: true,
+                filter: "[Phone] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Department_ClientId_DepartmentCode",
@@ -488,31 +469,11 @@ namespace HRMS.Infrastructure.Migrations
                 filter: "[TableName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Menu_ClientId_MenuName",
+                name: "IX_Menu_ParentMenuId_MenuName",
                 table: "Menu",
-                columns: new[] { "ClientId", "MenuName" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Menu_ParentMenuId",
-                table: "Menu",
-                column: "ParentMenuId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MenuPermissionMapping_ClientId_MenuId_PermissionId",
-                table: "MenuPermissionMapping",
-                columns: new[] { "ClientId", "MenuId", "PermissionId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MenuPermissionMapping_MenuId",
-                table: "MenuPermissionMapping",
-                column: "MenuId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MenuPermissionMapping_PermissionId",
-                table: "MenuPermissionMapping",
-                column: "PermissionId");
+                columns: new[] { "ParentMenuId", "MenuName" },
+                unique: true,
+                filter: "[ParentMenuId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payroll_ClientId_EmployeeId_Month_Year",
@@ -521,10 +482,15 @@ namespace HRMS.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Permission_ClientId_Module_Action",
+                name: "IX_Permission_ClientId_MenuId_Action",
                 table: "Permission",
-                columns: new[] { "ClientId", "Module", "Action" },
+                columns: new[] { "ClientId", "MenuId", "Action" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Permission_MenuId",
+                table: "Permission",
+                column: "MenuId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Role_ClientId_RoleName",
@@ -550,21 +516,22 @@ namespace HRMS.Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_ClientId_Email",
-                table: "User",
-                columns: new[] { "ClientId", "Email" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_User_ClientId_Phone",
                 table: "User",
                 columns: new[] { "ClientId", "Phone" },
-                unique: true);
+                unique: true,
+                filter: "[Phone] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_ClientId_UserCode",
                 table: "User",
                 columns: new[] { "ClientId", "UserCode" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_ClientId_UserEmail",
+                table: "User",
+                columns: new[] { "ClientId", "UserEmail" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -609,9 +576,6 @@ namespace HRMS.Infrastructure.Migrations
                 name: "MasterCodeGeneration");
 
             migrationBuilder.DropTable(
-                name: "MenuPermissionMapping");
-
-            migrationBuilder.DropTable(
                 name: "Payroll");
 
             migrationBuilder.DropTable(
@@ -621,9 +585,6 @@ namespace HRMS.Infrastructure.Migrations
                 name: "UserRole");
 
             migrationBuilder.DropTable(
-                name: "Menu");
-
-            migrationBuilder.DropTable(
                 name: "Permission");
 
             migrationBuilder.DropTable(
@@ -631,6 +592,9 @@ namespace HRMS.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Menu");
 
             migrationBuilder.DropTable(
                 name: "Client");

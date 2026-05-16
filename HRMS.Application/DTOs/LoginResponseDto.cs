@@ -1,13 +1,11 @@
-﻿
-using HRMS.Domain.Entities;
-
-namespace HRMS.Application.DTOs
+﻿namespace HRMS.Application.DTOs
 {
     public class LoginResponseDto
     {
+        public LoginResponseDto() { }
         public Guid UserId { get; set; }
         public Guid ClientId { get; set; }
-        public string UserCode { get; set; }
+        public string CompanyName { get; set; }
         public string UserName { get; set; }
         public string UserEmail { get; set; }
         public bool IsCompanyProfileCreated { get; set; }
@@ -17,7 +15,7 @@ namespace HRMS.Application.DTOs
         {
             UserId = dto.UserId;
             ClientId = dto.ClientId;
-            UserCode = dto.UserCode;
+            //UserCode = dto.UserCode;
             UserName = dto.UserName;
             UserEmail = dto.UserEmail;
             IsCompanyProfileCreated = dto.IsCompanyProfileCreated;

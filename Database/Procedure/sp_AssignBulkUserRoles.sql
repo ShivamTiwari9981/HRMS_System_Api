@@ -31,7 +31,6 @@ BEGIN
             ON UR.UserId = U.UserId
             where UR.ClientId = ClientId;
 
-            select * from UserRole
         -- Insert new roles
         INSERT INTO UserRole
         (
