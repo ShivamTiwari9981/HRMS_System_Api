@@ -14,6 +14,10 @@ namespace HRMS.Domain.Entities
 
         [MaxLength(200)]
         public string RoleName { get; set; }
+        public bool IsSystemRole { get; set; }
+        public ICollection<UserRoleEntity> UserRoles { get; set; }
+
+        public ICollection<RolePermissionEntity> RolePermissions { get; set; }
     }
    
 }

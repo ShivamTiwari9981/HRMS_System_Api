@@ -1,10 +1,10 @@
 
 using HRMS.API.Extensions;
-using HRMS.Application.Mapper;
 using HRMS.Infrastructure.Persistence;
+using HRMS.Infrastructure.Persistence.Seeders;
+using HRMS.Shared.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -13,7 +13,7 @@ namespace HRMS.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +22,10 @@ namespace HRMS.API
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"));
             });
-          
+
+            builder.Services.Configure<LoggingSettings>(
+            builder.Configuration.GetSection("LoggingSettings"));
+
             RegisterServicesExtension.RegisterService(builder.Services);
             builder.Services.AddHttpContextAccessor();
             
@@ -38,6 +41,14 @@ namespace HRMS.API
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
+            });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular",
+                    policy => policy
+                        .WithOrigins("http://localhost:4200") // your Angular app
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
             });
             //builder.Services.AddFluentValidationAutoValidation(); 
             builder.Services.AddControllers()
@@ -80,7 +91,16 @@ namespace HRMS.API
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-            
+            app.UseCors("AllowAngular");
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                var context = services.GetRequiredService<HRMSDbRepoContext>();
+
+               await DatabaseSeeder.SeedAsync(context);
+            }
+
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{

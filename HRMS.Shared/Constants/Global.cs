@@ -9,6 +9,11 @@
             public static string UserId = "UserId";
             public static string UserName = "UserName";
             public static string RoleName = "RoleName";
+            public static string ClientKey = "ClientKey";
+            public static string RoleIdKey = "RoleIdKey";
+            public static string Permission = "Permission";
+
+
             public static string IsCompanyProfileCreated = "IsCompanyProfileCreated";
         }
         public static class MasterTable
@@ -20,11 +25,6 @@
             public static string Employee = "Employee";
             public static string Leave = "Leave";
             public static string Payroll = "Payroll";
-        }
-        public static class RoleType
-        {
-            public static string Admin = "Admin";
-            
         }
     }
 }

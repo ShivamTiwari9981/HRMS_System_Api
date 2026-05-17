@@ -14,14 +14,11 @@ namespace HRMS.Domain.Entities
     {
         [Key]
         public Guid UserId { get; set; }
-        [Required]
-        public Guid ClientId { get; set; }
-        [ForeignKey(nameof(ClientId))]
-        public virtual ClientEntity Client { get; set; }
 
-        [Required]
+        public Guid? ClientId { get; set; }
+
         [MaxLength(20)]
-        public string UserCode { get; set; }
+        public string? UserCode { get; set; }
 
         [MaxLength(200)]
         public string? FullName { get; set; }
@@ -49,10 +46,9 @@ namespace HRMS.Domain.Entities
         [MaxLength(3)]
         public int? FailedLoginAttempts { get; set; } = 0;
         public DateTime? LockoutEnd { get; set; } = null;
-
         public bool IsLocked { get; set; } = false;
         [Required]
-        public string RoleName { get; set; }
+        public bool IsCompanyProfileCreated { get; set; } = false;
 
     }
 }

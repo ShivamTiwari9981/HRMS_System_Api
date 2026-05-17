@@ -17,6 +17,6 @@ namespace HRMS.Domain.Entities
 
         public Guid? UpdatedBy { get; set; }
 
-        public bool? IsSynced { get; set; }
+        public bool? IsSynced { get; set; } = false;
     }
 }

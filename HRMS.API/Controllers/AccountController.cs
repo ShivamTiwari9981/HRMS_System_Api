@@ -1,6 +1,6 @@
 ﻿using HRMS.Application.DTOs;
+using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.Interfaces;
-using HRMS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HRMS.API.Controllers
@@ -29,13 +29,13 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("login")]
-        public IActionResult login([FromQuery] LoginRequestDto dto)
+        [HttpPost("login")]
+        public IActionResult login([FromBody] LoginRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-                var result = _authService.Login(dto);
+                var result =  _authService.Login(dto);
 
                 if (!result.IsSuccess)
                 return BadRequest(result);

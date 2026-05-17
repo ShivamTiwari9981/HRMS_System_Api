@@ -8,7 +8,7 @@ namespace HRMS.Domain.Entities
     public class RolePermissionEntity : BaseEntity
     {
         [Key]
-        public Guid RolePermissionId { get; set; } = new Guid();
+        public Guid RolePermissionId { get; set; } = Guid.NewGuid();
         public Guid ClientId { get; set; }
 
         public Guid RoleId { get; set; }

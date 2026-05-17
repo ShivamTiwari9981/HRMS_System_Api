@@ -1,7 +1,7 @@
 ﻿DROP PROCEDURE IF EXISTS Sp_User_Login;
 GO
 CREATE  PROCEDURE Sp_User_Login
-(   @ClientKey Varchar(3),
+(   
     @UserEmail NVARCHAR(100),
     @ErrNumber INT OUTPUT,
     @ErrMsg VARCHAR(MAX) OUTPUT
@@ -9,31 +9,15 @@ CREATE  PROCEDURE Sp_User_Login
 AS
 BEGIN
     SET NOCOUNT ON;
-
+    DECLARE @ClientId UNIQUEIDENTIFIER;
+    DECLARE @UserId UNIQUEIDENTIFIER;
+    DECLARE @IsActive bit =0 ;
     BEGIN TRY
-        DECLARE @IsActive BIT;
-        DECLARE @UserId UNIQUEIDENTIFIER;
-
-        SELECT @IsActive = IsActive
-        FROM Client
-        WHERE ClientKey = @ClientKey;
-
-        IF @IsActive is null
-            Begin 
-                THROW 50001, 'Client does not exist', 1;
-            end 
-
-        If @IsActive <> 1
-            Begin
-                THROW 50002, 'Client already exists but is deactivated. Please contact support.', 1;
-            end
-
-       
         -- Check user exists
         SELECT 
-           
             @UserId = UserId,
-            @IsActive = IsActive
+            @IsActive = IsActive,
+            @ClientId= ClientId
         FROM [User]
         WHERE UserEmail = @UserEmail or UserName =@UserEmail;
 
@@ -45,18 +29,22 @@ BEGIN
             THROW 50004, 'User is inactive.', 1;
 
         -- Success → return user data
-        SELECT 
-            UserId,
-            ClientId,
-            UserCode,
-            UserName,
-            UserEmail,
-            PasswordHash,
-            UserSalt,
-            RoleName
-        FROM [User]
-        WHERE UserId = @UserId;
 
+            ;With LoginCTE as 
+            (
+                SELECT  TOP 1
+                UserId,
+                ClientId,
+                UserName,
+                UserEmail,
+                IsCompanyProfileCreated,
+                PasswordHash,
+                UserSalt
+                FROM [User]
+                WHERE UserId = @UserId 
+            )
+        select * from LoginCTE;
+            
         SET @ErrNumber = 0;
         SET @ErrMsg = 'Login successful';
 
@@ -64,6 +52,15 @@ BEGIN
     BEGIN CATCH
         SET @ErrNumber = 1;
         SET @ErrMsg = ERROR_MESSAGE();
+        print(@ErrMsg)
+         -------- Create LogError  ---------------
+         IF @ClientId IS NULL
+             BEGIN
+                Set @ClientId = '11111111-1111-1111-1111-111111111111'
+             END
+        EXEC sp_LogError 
+            @ClientId = @ClientId,
+            @CreatedBy=@UserId;
 
         THROW;
     END CATCH

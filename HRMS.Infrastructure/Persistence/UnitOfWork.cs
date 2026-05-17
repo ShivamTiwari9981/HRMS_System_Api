@@ -17,6 +17,8 @@ namespace HRMS.Infrastructure.Persistence
         public IGenericRepository<ClientEntity> ClientRepository { get; }
         public IGenericRepository<UserEntity> UserRepository { get; }
         public IGenericRepository<UserRoleEntity> UserRoleRepository { get; }
+        public IGenericRepository<RoleEntity> RoleRepository { get; }
+        public IGenericRepository<PermissionEntity> PerimssionRepository { get; }
         public IGenericRepository<MasterCodeGenerationEntity> MasterCodeGenerationRepository { get; }
 
         public UnitOfWork(HRMSDbRepoContext context)
@@ -27,6 +29,8 @@ namespace HRMS.Infrastructure.Persistence
             UserRepository = new GenericRepository<UserEntity>(_context);
             UserRoleRepository = new GenericRepository<UserRoleEntity>(_context);
             MasterCodeGenerationRepository = new GenericRepository<MasterCodeGenerationEntity>(_context);
+            RoleRepository = new GenericRepository<RoleEntity>(_context);
+            PerimssionRepository = new GenericRepository<PermissionEntity>(_context);
         }
 
         public async Task<bool> SaveChangesAsync()

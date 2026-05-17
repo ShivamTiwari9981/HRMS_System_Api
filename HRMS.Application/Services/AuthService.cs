@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using HRMS.Application.Common;
 using HRMS.Application.DTOs;
+using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Application.Interfaces;
+using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
+using HRMS.Shared.Constants;
 using HRMS.Shared.Helpers;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -20,12 +23,10 @@ namespace HRMS.Application.Services
     public class AuthService : BaseService, IAuthService
     {
         private readonly IConfiguration _configuration;
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration) : base(unitOfWork)
+        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration, ICurrentUserService currentSession) : base(unitOfWork, currentSession)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
-
-
         public ApiResponse<string> UserSignUp(SignupRequestDto dto)
         {
             int err_no = 0;
@@ -37,7 +38,6 @@ namespace HRMS.Application.Services
 
                 var param = new List<SqlParameter>
                 {
-                    new SqlParameter("@ClientKey", dto.ClientKey),
                     new SqlParameter("@UserName", dto.UserName),
                     new SqlParameter("@UserEmail", dto.UserEmail),
                     new SqlParameter("@HashPassword", pwdResult.hash),
@@ -52,11 +52,11 @@ namespace HRMS.Application.Services
                         Direction = ParameterDirection.Output
                     }
                 };
-                   var result = ExecuteStoredProcedure(StoredProcedure.Sp_Sign_Up, param, _unitOfWork.GetConnection());
-                        err_no = param.First(p => p.ParameterName == "@ErrNumber").Value != DBNull.Value
-                        ? Convert.ToInt32(param.First(p => p.ParameterName == "@ErrNumber").Value): 0;
-                        err_msg = param.First(p => p.ParameterName == "@ErrMsg").Value?.ToString() ?? "";
-                
+                var result = ExecuteStoredProcedure(StoredProcedure.Sp_Sign_Up, param, _unitOfWork.GetConnection());
+                err_no = param.First(p => p.ParameterName == "@ErrNumber").Value != DBNull.Value
+                ? Convert.ToInt32(param.First(p => p.ParameterName == "@ErrNumber").Value) : 0;
+                err_msg = param.First(p => p.ParameterName == "@ErrMsg").Value?.ToString() ?? "";
+
                 if (err_no != 0)
                     return ApiResponse<string>.Fail(err_no, err_msg);
 
@@ -67,48 +67,16 @@ namespace HRMS.Application.Services
                 return ApiResponse<string>.Fail(500, ex.Message);
             }
         }
-
-
-        //public ApiResponse<string> UserSignUp(SignupRequestDto dto)
-        //{
-        //    int err_no = 0;
-        //    string err_msg = "";
-        //    try
-        //    {
-        //        var pwd_result = PasswordHelper.HashPassword(dto.Password);
-        //        var param = new List<SqlParameter>();
-        //        param.Add(new SqlParameter("@ClientKey", dto.ClientKey));
-        //        param.Add(new SqlParameter("@UserName", dto.UserName));
-        //        param.Add(new SqlParameter("@UserEmail", dto.UserEmail));
-        //        param.Add(new SqlParameter("@HashPassword", pwd_result.hash));
-        //        param.Add(new SqlParameter("@UserSalt", pwd_result.salt));
-        //        param.Add(new SqlParameter("@CreatedBy", SystemUser.DefaultSystemUser));
-        //        param.Add(new SqlParameter("@ErrNumber", SqlDbType.Int, 4, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_no));
-        //        param.Add(new SqlParameter("@ErrMsg", SqlDbType.VarChar, 200, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_msg));
-        //        var result = GenericProcedureCall.ExecuteStoredProcedure(GenericProcedureCall.StoredProcedure.Sp_Sign_Up, param, _unitOfWork.GetConnection());
-        //        err_no = (int)param.Find(x => x.ParameterName == "@ErrNumber")?.Value;
-        //        err_msg = param.Find(x => x.ParameterName == "@ErrMsg")?.Value.ToString() ?? "";
-        //        if (err_no != 0)
-        //        {
-        //            return ApiResponse<string>.Fail(err_no, err_msg);
-        //        }
-        //        return ApiResponse<string>.Success(null, "SignUp successful");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ApiResponse<string>.Fail(1, ex.Message);
-        //    }
-        //}
-        public ApiResponse<LoginResponseDto> Login(LoginRequestDto dto)
+        public ApiResponse<ClientRolePermissionDto> Login(LoginRequestDto dto)
         {
             int err_no = 0;
             string err_msg = string.Empty;
+            ClientRolePermissionDto usrRoleResult = new ClientRolePermissionDto();
 
             try
             {
                 var param = new List<SqlParameter>
                 {
-                    new SqlParameter("@ClientKey", dto.ClientKey),
                     new SqlParameter("@UserEmail", dto.UserEmail),
 
                 new SqlParameter("@ErrNumber", SqlDbType.Int)
@@ -132,70 +100,73 @@ namespace HRMS.Application.Services
                 err_msg = param.First(p => p.ParameterName == "@ErrMsg").Value?.ToString() ?? "";
 
                 if (err_no != 0)
-                    return ApiResponse<LoginResponseDto>.Fail(err_no, err_msg);
+                    return ApiResponse<ClientRolePermissionDto>.Fail(err_no, err_msg);
 
                 var userDto = CommonMethod
                     .ConvertToList<UserDto>(result.Tables[0])
                     .FirstOrDefault();
 
                 if (userDto == null)
-                    return ApiResponse<LoginResponseDto>.Fail(1, "Invalid email or password");
+                    return ApiResponse<ClientRolePermissionDto>.Fail(1, "Invalid email or password");
 
                 // Verify password
                 if (!PasswordHelper.VerifyPassword(dto.Password, userDto.PasswordHash, userDto.UserSalt))
-                    return ApiResponse<LoginResponseDto>.Fail(1, "Invalid email or password");
+                    return ApiResponse<ClientRolePermissionDto>.Fail(1, "Invalid email or password");
 
                 // Generate token
-                string token = GenerateToken(userDto);
+                if (userDto.IsCompanyProfileCreated)
+                    usrRoleResult =  GetUserRolePermissionsAsync(userDto.ClientId,userDto.UserId);
 
-                var responseDto = new LoginResponseDto(userDto, token);
-
-                return ApiResponse<LoginResponseDto>.Success(responseDto, "Login successful");
+                else
+                {
+                    usrRoleResult.clientUserResponse.UserId=userDto.UserId;
+                    usrRoleResult.clientUserResponse.ClientId=userDto.ClientId;
+                    usrRoleResult.clientUserResponse.UserName=userDto.UserName;
+                    usrRoleResult.clientUserResponse.IsCompanyProfileCreated=userDto.IsCompanyProfileCreated;
+                    string token =  GenerateToken(usrRoleResult);
+                    usrRoleResult.Token = token;
+                }
+               return ApiResponse<ClientRolePermissionDto>.Success(usrRoleResult, "Login successful");
             }
             catch (Exception ex)
             {
-                return ApiResponse<LoginResponseDto>.Fail(500, ex.Message);
+                return ApiResponse<ClientRolePermissionDto>.Fail(500, ex.Message);
             }
         }
-        //public ApiResponse<LoginResponseDto> Login(LoginRequestDto dto)
-        //{
-        //    int err_no = 0;
-        //    string err_msg = string.Empty;
-        //    try
-        //    {
+        public ClientRolePermissionDto GetUserRolePermissionsAsync(Guid clientId,Guid userId)
+        {
+           
+            ClientRolePermissionDto clientRole = new();
 
-        //        var pwd_result = PasswordHelper.HashPassword(dto.Password);
-        //        var param = new List<SqlParameter>();
-        //        new SqlParameter("@ClientKey", dto.ClientKey);
-        //        new SqlParameter("@UserEmail", dto.UserEmail);
-        //        new SqlParameter("@ErrNo", SqlDbType.Int, 4, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_no);
-        //        new SqlParameter("@ErrMsg", SqlDbType.VarChar, 200, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_msg);
-        //        var result = ExecuteStoredProcedure(StoredProcedure.Sp_User_Login, param, _unitOfWork.GetConnection());
-        //        err_no = (int)param.Find(x => x.ParameterName == "@ErrNo")?.Value;
-        //        err_msg = param.Find(x => x.ParameterName == "@ErrMsg")?.Value.ToString() ?? "";
-        //        if (err_no == 0)
-        //        {
-        //            var userDto = CommonMethod.ConvertToList<UserDto>(result.Tables[0]).FirstOrDefault();
-        //            if (!PasswordHelper.VerifyPassword(dto.Password, userDto.PasswordHash, userDto.UserSalt))
-        //                return ApiResponse<LoginResponseDto>.Fail(err_no, err_msg);
+            var parameters = new List<SqlParameter>
+            {
+                new SqlParameter("@ClientId", clientId),
+                new SqlParameter("@UserId", userId),
+            };
 
-        //            string token = GenerateToken(userDto);
-        //            var responseDto = new LoginResponseDto(userDto, token);
-        //            return ApiResponse<LoginResponseDto>.Success(responseDto, err_msg);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ApiResponse<LoginResponseDto>.Fail(1, ex.Message);
-        //    }
-        //}
-        private string GenerateToken(UserDto dto)
+            var result =  ExecuteStoredProcedure(
+                StoredProcedure.sp_GetUserRolePermissions,
+                parameters,
+                _unitOfWork.GetConnection());
+
+            if (result.Tables.Count > 0)
+            {
+                clientRole.clientUserResponse = CommonMethod.ConvertToList<ClientUserResponseDto>(result.Tables[0]).FirstOrDefault();
+                clientRole.RoleResponse = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[1]);
+                clientRole.menuResponse = CommonMethod.ConvertToList<MenuResponseDto>(result.Tables[2]);
+                clientRole.rolePermissionResponse = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[3]);
+            }
+
+            string token = GenerateToken(clientRole);
+            clientRole.Token = token;
+            return clientRole;
+        }
+
+        public string GenerateToken(ClientRolePermissionDto result)
         {
             try
             {
-                if (dto == null)
-                    throw new ArgumentNullException(nameof(dto));
-
+               
                 // Get JWT key from configuration
                 var jwtKey = _configuration["Jwt:Key"];
                 var jwtIssuer = _configuration["Jwt:Issuer"];
@@ -209,15 +180,25 @@ namespace HRMS.Application.Services
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
                 // Build claims
-                var claims = new[]
+
+                var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, dto.UserName),
-                    new Claim(Claim_Types.RoleName, dto.RoleName),
-                    new Claim(Claim_Types.ClientId, dto.ClientId.ToString()),
-                    new Claim(Claim_Types.UserId,dto.UserId.ToString()),
-                    new Claim(Claim_Types.IsCompanyProfileCreated,dto.IsCompanyProfileCreated.ToString()),
+                      new Claim(ClaimTypes.Name, result.clientUserResponse.UserName),
+                      new Claim(Claim_Types.ClientId, result.clientUserResponse.ClientId.ToString()??string.Empty),
+                      new Claim(Claim_Types.UserId, result.clientUserResponse.UserId.ToString()),
+                      new Claim(Claim_Types.IsCompanyProfileCreated, result.clientUserResponse.IsCompanyProfileCreated.ToString())
                 };
 
+                foreach (var role in result.RoleResponse.DistinctBy(x => x.RoleNames))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role.RoleNames));
+                }
+
+                // Add Permissions
+                foreach (var permission in result.rolePermissionResponse.DistinctBy(x => x.PermissionKey))
+                {
+                    claims.Add(new Claim(Claim_Types.Permission, permission.PermissionKey));
+                }
                 // Create and write token
                 var token = new JwtSecurityToken(
                     issuer: jwtIssuer,
