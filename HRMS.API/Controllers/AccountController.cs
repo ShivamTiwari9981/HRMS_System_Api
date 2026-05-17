@@ -29,13 +29,13 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("login")]
-        public async Task<IActionResult> login([FromQuery] LoginRequestDto dto)
+        [HttpPost("login")]
+        public IActionResult login([FromBody] LoginRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-                var result = await _authService.Login(dto);
+                var result =  _authService.Login(dto);
 
                 if (!result.IsSuccess)
                 return BadRequest(result);

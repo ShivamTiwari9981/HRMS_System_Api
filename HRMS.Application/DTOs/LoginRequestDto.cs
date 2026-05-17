@@ -5,8 +5,8 @@ namespace HRMS.Application.DTOs
     public class LoginRequestDto
     {
         [Required]
-        public string UserEmail { get; set; } = "shivamtiwari8756@gmail.com";
+        public string UserEmail { get; set; }
         [Required]
-        public string Password { get; set; } = "12345";
+        public string Password { get; set; } 
     }
 }

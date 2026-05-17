@@ -7,7 +7,7 @@ namespace HRMS.Application.Interfaces
     public interface IAuthService
     {
         ApiResponse<string> UserSignUp(SignupRequestDto dto);
-        Task<ApiResponse<ClientRolePermissionDto>> Login(LoginRequestDto dto);
+        ApiResponse<ClientRolePermissionDto> Login(LoginRequestDto dto);
         ClientRolePermissionDto GetUserRolePermissionsAsync(Guid ClientId, Guid UserId);
     }
 }

@@ -42,6 +42,14 @@ namespace HRMS.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
             });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular",
+                    policy => policy
+                        .WithOrigins("http://localhost:4200") // your Angular app
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
             //builder.Services.AddFluentValidationAutoValidation(); 
             builder.Services.AddControllers()
             .AddJsonOptions(options =>
@@ -83,7 +91,7 @@ namespace HRMS.API
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-
+            app.UseCors("AllowAngular");
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
