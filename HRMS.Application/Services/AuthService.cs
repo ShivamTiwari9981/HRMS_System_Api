@@ -4,9 +4,7 @@ using HRMS.Application.DTOs;
 using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Application.Interfaces;
-using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
-using HRMS.Shared.Constants;
 using HRMS.Shared.Helpers;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -23,8 +21,20 @@ namespace HRMS.Application.Services
     public class AuthService : BaseService, IAuthService
     {
         private readonly IConfiguration _configuration;
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration, ICurrentUserService currentSession) : base(unitOfWork, currentSession)
+        private readonly ISettingService _settingService;
+        private readonly IEmailService _emailService;
+        private readonly IOTPService _otpService;
+        public AuthService(
+            IUnitOfWork unitOfWork,
+            ISettingService settingService, 
+            IEmailService emailService, 
+            IConfiguration configuration,
+            IOTPService oTPService,
+            ICurrentUserService currentSession) : base(unitOfWork, currentSession)
         {
+            _settingService = settingService;
+            _emailService = emailService;
+            _otpService = oTPService;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
         public ApiResponse<string> UserSignUp(SignupRequestDto dto)
@@ -212,6 +222,92 @@ namespace HRMS.Application.Services
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> SendOtpAsync(string userEmail)
+        {
+            try
+            {
+                bool isValidUser = await _unitOfWork
+                    .UserRepository
+                    .AnyAsync(x => x.UserEmail == userEmail);
+
+                if (!isValidUser)
+                {
+                    return ApiResponse<bool>.Fail(1, "Invalid user");
+                }
+
+                bool isEmailOtpEnabled = await _settingService.IsEmailOtpEnabled();
+
+                if (!isEmailOtpEnabled)
+                {
+                    return ApiResponse<bool>.Fail(1, "Email OTP setting is disabled!");
+                }
+
+                string otp = OtpHelper.GenerateOtp();
+
+                var emailResponse = await _emailService.SendEmailOTP(userEmail, otp);
+
+                if (!emailResponse.IsSuccess)
+                {
+                    return ApiResponse<bool>.Fail(1, emailResponse.Message);
+                }
+
+                await _otpService.SaveOTP(userEmail, otp);
+
+                return ApiResponse<bool>.Success(true, "OTP sent successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.Fail(1, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse<bool>> VerifyEmailOTP(string userEmail, string otp)
+        {
+            try
+            {
+              var result = await _otpService.VerifyOtp(userEmail, otp);
+              return result;           
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.Fail(1, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse<bool>> ResetPassword(string userEmail, string password)
+        {
+            try
+            {
+                var dbResult = await _unitOfWork
+                    .UserRepository
+                    .FirstOrDefaultAsync(x => x.UserEmail == userEmail && x.IsActive ==true);
+
+                if (dbResult == null)
+                {
+                    return ApiResponse<bool>.Fail(1, "Invalid user");
+                }
+                var pwdResult = PasswordHelper.HashPassword(password);
+
+                dbResult.PasswordHash = pwdResult.hash;
+                dbResult.UserSalt = pwdResult.salt;
+
+                _unitOfWork.UserRepository.Update(dbResult);
+
+
+                bool save = await _unitOfWork.SaveChangesAsync();
+
+                if(!save)
+                {
+                    return ApiResponse<bool>.Fail(1, "Password update failed");
+                }
+                return ApiResponse<bool>.Success(true, "Password updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.Fail(1, ex.Message);
             }
         }
     }

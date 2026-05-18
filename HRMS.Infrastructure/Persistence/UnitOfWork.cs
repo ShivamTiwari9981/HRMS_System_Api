@@ -1,4 +1,5 @@
-﻿using HRMS.Domain.Entities;
+﻿using HRMS.Application.Interfaces;
+using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
 using HRMS.Infrastructure.Repositories;
 using Microsoft.Data.SqlClient;
@@ -13,6 +14,7 @@ namespace HRMS.Infrastructure.Persistence
     {
 
         private readonly HRMSDbRepoContext _context;
+        private readonly ICurrentUserService _currentUser;
         private IDbContextTransaction _transaction;
         public IGenericRepository<ClientEntity> ClientRepository { get; }
         public IGenericRepository<UserEntity> UserRepository { get; }
@@ -20,17 +22,20 @@ namespace HRMS.Infrastructure.Persistence
         public IGenericRepository<RoleEntity> RoleRepository { get; }
         public IGenericRepository<PermissionEntity> PerimssionRepository { get; }
         public IGenericRepository<MasterCodeGenerationEntity> MasterCodeGenerationRepository { get; }
+        public IGenericRepository<HRMSAppSettingEntity> HRMSAppSettingRepository { get; }
 
-        public UnitOfWork(HRMSDbRepoContext context)
+        public UnitOfWork(HRMSDbRepoContext context, ICurrentUserService currentUser)
         {
             _context = context;
+            _currentUser = currentUser;
 
-            ClientRepository = new GenericRepository<ClientEntity>(_context);
-            UserRepository = new GenericRepository<UserEntity>(_context);
-            UserRoleRepository = new GenericRepository<UserRoleEntity>(_context);
-            MasterCodeGenerationRepository = new GenericRepository<MasterCodeGenerationEntity>(_context);
-            RoleRepository = new GenericRepository<RoleEntity>(_context);
-            PerimssionRepository = new GenericRepository<PermissionEntity>(_context);
+            ClientRepository = new GenericRepository<ClientEntity>(_context, _currentUser);
+            UserRepository = new GenericRepository<UserEntity>(_context, _currentUser);
+            UserRoleRepository = new GenericRepository<UserRoleEntity>(_context, _currentUser);
+            MasterCodeGenerationRepository = new GenericRepository<MasterCodeGenerationEntity>(_context, _currentUser);
+            RoleRepository = new GenericRepository<RoleEntity>(_context, _currentUser);
+            PerimssionRepository = new GenericRepository<PermissionEntity>(_context, _currentUser);
+            HRMSAppSettingRepository = new GenericRepository<HRMSAppSettingEntity>(_context, _currentUser);
         }
 
         public async Task<bool> SaveChangesAsync()

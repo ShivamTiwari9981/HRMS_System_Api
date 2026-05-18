@@ -1,4 +1,5 @@
 ﻿using HRMS.Application.Interfaces;
+using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
 using HRMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace HRMS.Infrastructure.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         protected readonly HRMSDbRepoContext _context;
         protected readonly DbSet<T> _dbSet;
@@ -20,10 +21,11 @@ namespace HRMS.Infrastructure.Repositories
             _currentUser = currentUser;
         }
 
-        public GenericRepository(HRMSDbRepoContext context)
-        {
-            _context = context;
-        }
+        //public GenericRepository(HRMSDbRepoContext context)
+        //{
+        //    _context = context;
+        //    _dbSet = context.Set<T>();
+        //}
 
         // -------------------- READ --------------------
 
@@ -51,19 +53,38 @@ namespace HRMS.Infrastructure.Repositories
 
         public async Task AddAsync(T entity)
         {
+            entity.CreatedAt = DateTime.UtcNow;
+            entity.CreatedBy = _currentUser.UserId;
             await _dbSet.AddAsync(entity);
         }
 
         public async Task AddRangeAsync(IEnumerable<T> entities)
         {
+            foreach (var entity in entities)
+            {
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.CreatedBy = _currentUser.UserId;
+            }
+
             await _dbSet.AddRangeAsync(entities);
         }
 
         public void Update(T entity)
         {
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedBy = _currentUser.UserId;
             _dbSet.Update(entity);
         }
+        public async Task SoftDeleteAsync(T entity)
+        {
+            entity.IsActive = true;
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedBy = _currentUser.UserId;
 
+            _dbSet.Update(entity);
+
+            await Task.CompletedTask;
+        }
         public void Remove(T entity)
         {
             _dbSet.Remove(entity);

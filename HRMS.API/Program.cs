@@ -17,18 +17,21 @@ namespace HRMS.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddDbContext<HRMSDbRepoContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"));
             });
 
-            builder.Services.Configure<LoggingSettings>(
-            builder.Configuration.GetSection("LoggingSettings"));
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                options.InstanceName = "HRMS_";
+            });
 
-            RegisterServicesExtension.RegisterService(builder.Services);
+            RegisterServicesExtension.RegisterService(builder.Services,builder.Configuration);
             builder.Services.AddHttpContextAccessor();
             
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters

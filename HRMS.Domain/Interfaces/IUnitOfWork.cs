@@ -12,6 +12,7 @@ namespace HRMS.Domain.Interfaces
         IGenericRepository<MasterCodeGenerationEntity> MasterCodeGenerationRepository { get; }
         IGenericRepository<RoleEntity> RoleRepository { get; }
         IGenericRepository<PermissionEntity> PerimssionRepository { get; }
+        IGenericRepository<HRMSAppSettingEntity> HRMSAppSettingRepository { get; }
         Task<bool> SaveChangesAsync();
         Task<IDbContextTransaction>BeginTransactionAsync();
         Task CommitTransactionAsync();
