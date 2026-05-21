@@ -18,8 +18,8 @@ BEGIN
             @UserId = UserId,
             @IsActive = IsActive,
             @ClientId= ClientId
-        FROM [User]
-        WHERE UserEmail = @UserEmail or UserName =@UserEmail;
+        FROM [User] NOLOCK
+        WHERE UserEmail = @UserEmail 
 
         IF @UserId IS NULL
             THROW 50003, 'Invalid email or password.', 1;
@@ -30,8 +30,6 @@ BEGIN
 
         -- Success → return user data
 
-            ;With LoginCTE as 
-            (
                 SELECT  TOP 1
                 UserId,
                 ClientId,
@@ -40,11 +38,9 @@ BEGIN
                 IsCompanyProfileCreated,
                 PasswordHash,
                 UserSalt
-                FROM [User]
+                FROM [User] NOLOCK
                 WHERE UserId = @UserId 
-            )
-        select * from LoginCTE;
-            
+
         SET @ErrNumber = 0;
         SET @ErrMsg = 'Login successful';
 
@@ -52,16 +48,6 @@ BEGIN
     BEGIN CATCH
         SET @ErrNumber = 1;
         SET @ErrMsg = ERROR_MESSAGE();
-        print(@ErrMsg)
-         -------- Create LogError  ---------------
-         IF @ClientId IS NULL
-             BEGIN
-                Set @ClientId = '11111111-1111-1111-1111-111111111111'
-             END
-        EXEC sp_LogError 
-            @ClientId = @ClientId,
-            @CreatedBy=@UserId;
-
         THROW;
     END CATCH
 END

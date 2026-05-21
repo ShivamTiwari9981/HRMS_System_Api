@@ -129,10 +129,11 @@ namespace HRMS.Application.Services
 
                 else
                 {
-                    usrRoleResult.clientUserResponse.UserId=userDto.UserId;
-                    usrRoleResult.clientUserResponse.ClientId=userDto.ClientId;
-                    usrRoleResult.clientUserResponse.UserName=userDto.UserName;
-                    usrRoleResult.clientUserResponse.IsCompanyProfileCreated=userDto.IsCompanyProfileCreated;
+                    usrRoleResult.user.UserId=userDto.UserId;
+                    usrRoleResult.user.ClientId=userDto.ClientId;
+                    usrRoleResult.user.UserName=userDto.UserName;
+                    usrRoleResult.user.UserEmail = userDto.UserEmail;
+                    usrRoleResult.user.IsCompanyProfileCreated=userDto.IsCompanyProfileCreated;
                     string token =  GenerateToken(usrRoleResult);
                     usrRoleResult.Token = token;
                 }
@@ -161,10 +162,11 @@ namespace HRMS.Application.Services
 
             if (result.Tables.Count > 0)
             {
-                clientRole.clientUserResponse = CommonMethod.ConvertToList<ClientUserResponseDto>(result.Tables[0]).FirstOrDefault();
-                clientRole.RoleResponse = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[1]);
-                clientRole.menuResponse = CommonMethod.ConvertToList<MenuResponseDto>(result.Tables[2]);
-                clientRole.rolePermissionResponse = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[3]);
+                clientRole.user = CommonMethod.ConvertToList<UserResponseDto>(result.Tables[0]).FirstOrDefault();
+                clientRole.client = CommonMethod.ConvertToList<ClientResponseDto>(result.Tables[1]).FirstOrDefault();
+                clientRole.role = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[2]);
+                clientRole.menu = CommonMethod.ConvertToList<MenuResponseDto>(result.Tables[3]);
+                clientRole.rolepermission = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[4]);
             }
 
             string token = GenerateToken(clientRole);
@@ -193,19 +195,19 @@ namespace HRMS.Application.Services
 
                 var claims = new List<Claim>
                 {
-                      new Claim(ClaimTypes.Name, result.clientUserResponse.UserName),
-                      new Claim(Claim_Types.ClientId, result.clientUserResponse.ClientId.ToString()??string.Empty),
-                      new Claim(Claim_Types.UserId, result.clientUserResponse.UserId.ToString()),
-                      new Claim(Claim_Types.IsCompanyProfileCreated, result.clientUserResponse.IsCompanyProfileCreated.ToString())
+                      new Claim(ClaimTypes.Name, result.user.UserName),
+                      new Claim(Claim_Types.ClientId, result.user.ClientId.ToString()??string.Empty),
+                      new Claim(Claim_Types.UserId, result.user.UserId.ToString()),
+                      new Claim(Claim_Types.IsCompanyProfileCreated, result.user.IsCompanyProfileCreated.ToString())
                 };
 
-                foreach (var role in result.RoleResponse.DistinctBy(x => x.RoleNames))
+                foreach (var role in result.role.DistinctBy(x => x.RoleNames))
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role.RoleNames));
                 }
 
                 // Add Permissions
-                foreach (var permission in result.rolePermissionResponse.DistinctBy(x => x.PermissionKey))
+                foreach (var permission in result.rolepermission.DistinctBy(x => x.PermissionKey))
                 {
                     claims.Add(new Claim(Claim_Types.Permission, permission.PermissionKey));
                 }
