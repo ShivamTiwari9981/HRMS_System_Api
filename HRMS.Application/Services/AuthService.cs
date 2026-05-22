@@ -4,9 +4,7 @@ using HRMS.Application.DTOs;
 using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Application.Interfaces;
-using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
-using HRMS.Shared.Constants;
 using HRMS.Shared.Helpers;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -23,8 +21,20 @@ namespace HRMS.Application.Services
     public class AuthService : BaseService, IAuthService
     {
         private readonly IConfiguration _configuration;
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration, ICurrentUserService currentSession) : base(unitOfWork, currentSession)
+        private readonly ISettingService _settingService;
+        private readonly IEmailService _emailService;
+        private readonly IOTPService _otpService;
+        public AuthService(
+            IUnitOfWork unitOfWork,
+            ISettingService settingService, 
+            IEmailService emailService, 
+            IConfiguration configuration,
+            IOTPService oTPService,
+            ICurrentUserService currentSession) : base(unitOfWork, currentSession)
         {
+            _settingService = settingService;
+            _emailService = emailService;
+            _otpService = oTPService;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
         public ApiResponse<string> UserSignUp(SignupRequestDto dto)
@@ -119,10 +129,11 @@ namespace HRMS.Application.Services
 
                 else
                 {
-                    usrRoleResult.clientUserResponse.UserId=userDto.UserId;
-                    usrRoleResult.clientUserResponse.ClientId=userDto.ClientId;
-                    usrRoleResult.clientUserResponse.UserName=userDto.UserName;
-                    usrRoleResult.clientUserResponse.IsCompanyProfileCreated=userDto.IsCompanyProfileCreated;
+                    usrRoleResult.user.UserId=userDto.UserId;
+                    usrRoleResult.user.ClientId=userDto.ClientId;
+                    usrRoleResult.user.UserName=userDto.UserName;
+                    usrRoleResult.user.UserEmail = userDto.UserEmail;
+                    usrRoleResult.user.IsCompanyProfileCreated=userDto.IsCompanyProfileCreated;
                     string token =  GenerateToken(usrRoleResult);
                     usrRoleResult.Token = token;
                 }
@@ -151,10 +162,11 @@ namespace HRMS.Application.Services
 
             if (result.Tables.Count > 0)
             {
-                clientRole.clientUserResponse = CommonMethod.ConvertToList<ClientUserResponseDto>(result.Tables[0]).FirstOrDefault();
-                clientRole.RoleResponse = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[1]);
-                clientRole.menuResponse = CommonMethod.ConvertToList<MenuResponseDto>(result.Tables[2]);
-                clientRole.rolePermissionResponse = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[3]);
+                clientRole.user = CommonMethod.ConvertToList<UserResponseDto>(result.Tables[0]).FirstOrDefault();
+                clientRole.client = CommonMethod.ConvertToList<ClientResponseDto>(result.Tables[1]).FirstOrDefault();
+                clientRole.role = CommonMethod.ConvertToList<RoleResponseDto>(result.Tables[2]);
+                clientRole.menu = CommonMethod.ConvertToList<MenuResponseDto>(result.Tables[3]);
+                clientRole.rolepermission = CommonMethod.ConvertToList<RolePermissionResponseDto>(result.Tables[4]);
             }
 
             string token = GenerateToken(clientRole);
@@ -183,19 +195,19 @@ namespace HRMS.Application.Services
 
                 var claims = new List<Claim>
                 {
-                      new Claim(ClaimTypes.Name, result.clientUserResponse.UserName),
-                      new Claim(Claim_Types.ClientId, result.clientUserResponse.ClientId.ToString()??string.Empty),
-                      new Claim(Claim_Types.UserId, result.clientUserResponse.UserId.ToString()),
-                      new Claim(Claim_Types.IsCompanyProfileCreated, result.clientUserResponse.IsCompanyProfileCreated.ToString())
+                      new Claim(ClaimTypes.Name, result.user.UserName),
+                      new Claim(Claim_Types.ClientId, result.user.ClientId.ToString()??string.Empty),
+                      new Claim(Claim_Types.UserId, result.user.UserId.ToString()),
+                      new Claim(Claim_Types.IsCompanyProfileCreated, result.user.IsCompanyProfileCreated.ToString())
                 };
 
-                foreach (var role in result.RoleResponse.DistinctBy(x => x.RoleNames))
+                foreach (var role in result.role.DistinctBy(x => x.RoleNames))
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role.RoleNames));
                 }
 
                 // Add Permissions
-                foreach (var permission in result.rolePermissionResponse.DistinctBy(x => x.PermissionKey))
+                foreach (var permission in result.rolepermission.DistinctBy(x => x.PermissionKey))
                 {
                     claims.Add(new Claim(Claim_Types.Permission, permission.PermissionKey));
                 }
@@ -212,6 +224,92 @@ namespace HRMS.Application.Services
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> SendOtpAsync(string userEmail)
+        {
+            try
+            {
+                bool isValidUser = await _unitOfWork
+                    .UserRepository
+                    .AnyAsync(x => x.UserEmail == userEmail);
+
+                if (!isValidUser)
+                {
+                    return ApiResponse<bool>.Fail(1, "Invalid user");
+                }
+
+                bool isEmailOtpEnabled = await _settingService.IsEmailOtpEnabled();
+
+                if (!isEmailOtpEnabled)
+                {
+                    return ApiResponse<bool>.Fail(1, "Email OTP setting is disabled!");
+                }
+
+                string otp = OtpHelper.GenerateOtp();
+
+                var emailResponse = await _emailService.SendEmailOTP(userEmail, otp);
+
+                if (!emailResponse.IsSuccess)
+                {
+                    return ApiResponse<bool>.Fail(1, emailResponse.Message);
+                }
+
+                await _otpService.SaveOTP(userEmail, otp);
+
+                return ApiResponse<bool>.Success(true, "OTP sent successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.Fail(1, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse<bool>> VerifyEmailOTP(string userEmail, string otp)
+        {
+            try
+            {
+              var result = await _otpService.VerifyOtp(userEmail, otp);
+              return result;           
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.Fail(1, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse<bool>> ResetPassword(string userEmail, string password)
+        {
+            try
+            {
+                var dbResult = await _unitOfWork
+                    .UserRepository
+                    .FirstOrDefaultAsync(x => x.UserEmail == userEmail && x.IsActive ==true);
+
+                if (dbResult == null)
+                {
+                    return ApiResponse<bool>.Fail(1, "Invalid user");
+                }
+                var pwdResult = PasswordHelper.HashPassword(password);
+
+                dbResult.PasswordHash = pwdResult.hash;
+                dbResult.UserSalt = pwdResult.salt;
+
+                _unitOfWork.UserRepository.Update(dbResult);
+
+
+                bool save = await _unitOfWork.SaveChangesAsync();
+
+                if(!save)
+                {
+                    return ApiResponse<bool>.Fail(1, "Password update failed");
+                }
+                return ApiResponse<bool>.Success(true, "Password updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<bool>.Fail(1, ex.Message);
             }
         }
     }

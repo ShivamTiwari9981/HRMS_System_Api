@@ -12,5 +12,12 @@ namespace HRMS.Shared.Helpers
         {
             return DateTime.UtcNow;
         }
+
+        public static TimeSpan GetTimeSpan(int time)
+        {
+            return  TimeSpan.FromMinutes(time);
+        }
+
+        
     }
 }

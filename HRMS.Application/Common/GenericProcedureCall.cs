@@ -192,27 +192,71 @@ namespace HRMS.Application.Common
         #region CommonMethod
         public static class CommonMethod
         {
-            public static List<T> ConvertToList<T>(DataTable dt)
+            public static List<T> ConvertToList<T>(DataTable dt) where T : new()
             {
-                var columnNames = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName.ToLower()).ToList();
                 var properties = typeof(T).GetProperties();
-                return dt.AsEnumerable().Select(row =>
+
+                var columnDictionary = dt.Columns
+                    .Cast<DataColumn>()
+                    .ToDictionary(c => c.ColumnName.ToLower(), c => c.ColumnName);
+
+                var list = new List<T>();
+
+                foreach (DataRow row in dt.Rows)
                 {
-                    var objT = Activator.CreateInstance<T>();
-                    foreach (var pro in properties)
+                    T obj = new T();
+
+                    foreach (var prop in properties)
                     {
-                        if (columnNames.Contains(pro.Name.ToLower()))
+                        if (columnDictionary.TryGetValue(prop.Name.ToLower(), out string columnName))
                         {
-                            try
+                            var value = row[columnName];
+
+                            if (value != DBNull.Value)
                             {
-                                pro.SetValue(objT, row[pro.Name]);
+                                try
+                                {
+                                    var targetType = Nullable.GetUnderlyingType(prop.PropertyType)
+                                                     ?? prop.PropertyType;
+
+                                    var safeValue = Convert.ChangeType(value, targetType);
+
+                                    prop.SetValue(obj, safeValue);
+                                }
+                                catch
+                                {
+                                    // optional logging
+                                }
                             }
-                            catch (Exception ex) { }
                         }
                     }
-                    return objT;
-                }).ToList();
+
+                    list.Add(obj);
+                }
+
+                return list;
             }
+            //public static List<T> ConvertToList<T>(DataTable dt)
+            //{
+            //    var columnNames = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName.ToLower()).ToList();
+            //    var properties = typeof(T).GetProperties();
+            //    return dt.AsEnumerable().Select(row =>
+            //    {
+            //        var objT = Activator.CreateInstance<T>();
+            //        foreach (var pro in properties)
+            //        {
+            //            if (columnNames.Contains(pro.Name.ToLower()))
+            //            {
+            //                try
+            //                {
+            //                    pro.SetValue(objT, row[pro.Name]);
+            //                }
+            //                catch (Exception ex) { }
+            //            }
+            //        }
+            //        return objT;
+            //    }).ToList();
+            //}
         }
         #endregion
     }

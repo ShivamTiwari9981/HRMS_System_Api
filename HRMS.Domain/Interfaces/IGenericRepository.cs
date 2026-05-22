@@ -11,9 +11,14 @@ namespace HRMS.Domain.Interfaces
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 
         // Write
+
         Task AddAsync(T entity);
+
         Task AddRangeAsync(IEnumerable<T> entities);
+
         void Update(T entity);
+
+        Task SoftDeleteAsync(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
 

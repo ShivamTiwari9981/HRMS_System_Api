@@ -6,7 +6,7 @@ namespace HRMS.Domain.Entities
     [Index(nameof(CompanyName), IsUnique = true)]
     [Index(nameof(CompanyEmail), IsUnique = true)]
     [Index(nameof(Phone), IsUnique = true)]
-    public class ClientEntity
+    public class ClientEntity : BaseEntity
     {
         [Key]
         public Guid ClientId { get; set; } = Guid.NewGuid();
@@ -47,21 +47,7 @@ namespace HRMS.Domain.Entities
 
         [MaxLength(200)]
         public string Address { get; set; }
-
-        public bool? IsActive { get; set; } = true;
-
-        [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        [Required]
-        public Guid CreatedBy { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
-
-        public Guid? UpdatedBy { get; set; }
-
-        public bool? IsSynced { get; set; }
-        
+ 
     }
 }
 
