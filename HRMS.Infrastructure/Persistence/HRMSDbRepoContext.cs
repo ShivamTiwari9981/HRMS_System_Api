@@ -26,6 +26,8 @@ namespace HRMS.Infrastructure.Persistence
         public DbSet<UserEntity> User { get; set; }
         public DbSet<RolePermissionEntity> RolePermission { get; set; }
         public DbSet<UserRoleEntity> UserRole { get; set; }
+        public DbSet<SubscriptionPlanEntity> SubscriptionPlan { get; set; }
+        
 
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)

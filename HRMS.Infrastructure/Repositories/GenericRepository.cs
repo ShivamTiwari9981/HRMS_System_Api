@@ -16,19 +16,23 @@ namespace HRMS.Infrastructure.Repositories
 
         public GenericRepository(HRMSDbRepoContext context, ICurrentUserService currentUser)
         {
-            _context = context;
-            _dbSet = context.Set<T>();
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _dbSet = _context.Set<T>();   // ✅ ALWAYS initialize here
             _currentUser = currentUser;
         }
 
-        //public GenericRepository(HRMSDbRepoContext context)
-        //{
-        //    _context = context;
-        //    _dbSet = context.Set<T>();
-        //}
+        public GenericRepository(HRMSDbRepoContext context)
+        {
+            _context = context;
+            _dbSet = context.Set<T>();
+        }
 
         // -------------------- READ --------------------
 
+        public async Task<List<T>> GetAllAsync()
+        {
+            return await _dbSet.ToListAsync();
+        }
         public async Task<T?> GetByIdAsync(object id)
         {
             return await _dbSet.FindAsync(id);

@@ -42,7 +42,7 @@ BEGIN
                 WHERE UserId = @UserId 
 
         SET @ErrNumber = 0;
-        SET @ErrMsg = 'Login successful';
+        SET @ErrMsg = 'Welcome to ';
 
     END TRY
     BEGIN CATCH

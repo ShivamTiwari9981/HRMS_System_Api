@@ -21,6 +21,7 @@ namespace HRMS.API.Extensions
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IOTPService, OTPService>();
+            services.AddScoped<IMasterDataService, MasterDataService>();
 
 
             #endregion

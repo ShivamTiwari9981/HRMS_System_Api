@@ -9,7 +9,6 @@
         public string UserName { get; set; }
         public string UserEmail { get; set; }
         public bool IsCompanyProfileCreated { get; set; }
-        public string RoleName { get; set; }
         public string Token { get; set; }
         public LoginResponseDto(UserDto dto,string token)
         {

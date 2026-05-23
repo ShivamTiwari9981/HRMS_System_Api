@@ -24,15 +24,14 @@ namespace HRMS.Application.Services
                 LoginResponseDto res = new LoginResponseDto();
                 var param = new List<SqlParameter>
                 {
-                    new SqlParameter("@ClientName", dto.ClientName),
                     new SqlParameter("@CompanyName", dto.CompanyName),
-                    new SqlParameter("@CompanyLogo", dto.CompanyLogo),
-                    new SqlParameter("@Domain", dto.Domain),
-                    new SqlParameter("@ContactPerson", dto.ContactPerson),
                     new SqlParameter("@CompanyEmail", dto.CompanyEmail),
                     new SqlParameter("@Phone", dto.Phone),
-                    new SqlParameter("@ExpiryDate", dto.ExpiryDate),
+                    new SqlParameter("@SubscriptionStartDate", dto.SubscriptionStartDate),
+                    new SqlParameter("@SubscriptionEndDate", dto.SubscriptionEndDate),
                     new SqlParameter("@GSTNumber", dto.GSTNumber),
+                    new SqlParameter("@CompanyType", dto.ComapnyTypeId),
+                    new SqlParameter("@SubscriptionPlanId", dto.SubscriptionPlanId),
                     new SqlParameter("@Address", dto.Address),
                     new SqlParameter("@Client_Id", SqlDbType.VarChar, 200)
                     {

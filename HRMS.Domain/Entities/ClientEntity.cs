@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HRMS.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace HRMS.Domain.Entities
@@ -13,24 +14,10 @@ namespace HRMS.Domain.Entities
 
         [Required]
         [MaxLength(200)]
-        public string ClientName { get; set; }
-
-
-        [Required]
-        [MaxLength(200)]
         public string CompanyName { get; set; }
 
-        [MaxLength(200)]
-        public string? CompanyLogo { get; set; }
-
         [Required]
-        [MaxLength(200)]
-        public string Domain { get; set; }
-
-
-        [Required]
-        [MaxLength(200)]
-        public string ContactPerson { get; set; }
+        public CompanyType CompanyType { get; set; }
 
         [MaxLength(200)]
         [EmailAddress]
@@ -40,7 +27,11 @@ namespace HRMS.Domain.Entities
         [MaxLength(20)]
         public string Phone { get; set; }
 
-        public DateTime? ExpiryDate { get; set; }
+        public Guid SubscriptionPlanId { get; set; }
+        
+        public DateTime? SubscriptionStartDate { get; set; }
+        [Required]
+        public DateTime SubscriptionEndDate { get; set; }
 
         [MaxLength(50)]
         public string? GSTNumber { get; set; }
