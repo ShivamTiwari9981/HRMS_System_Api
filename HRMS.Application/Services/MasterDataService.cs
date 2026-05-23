@@ -24,7 +24,7 @@ namespace HRMS.Application.Services
                     EmployeeLimit = x.EmployeeLimit,
                     DurationInDays = x.DurationInDays,
                     Price = x.Price
-                }).ToList();
+                }).OrderBy(x=>x.EmployeeLimit).ToList();
             }
             catch (Exception)
             {
@@ -35,6 +35,7 @@ namespace HRMS.Application.Services
         {
             var result = EnumHelper.GetEnumList<CompanyType>();
             return result;
+
         }
 
         public async Task<ApiResponse<CompanyDropdownListResponseDto>> GetPlanAndCompanyTypeAsync()

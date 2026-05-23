@@ -5,6 +5,7 @@
         public static async Task SeedAsync(HRMSDbRepoContext context)
         {
             await MenuSeeder.SeedAsync(context);
+            await SubscriptionPlanSeeder.SeedAsync(context);
 
             // Future
             // await RoleSeeder.SeedAsync(context);

@@ -1,5 +1,6 @@
 ﻿using HRMS.Application.DTOs;
 using HRMS.Application.DTOs.RequestDto;
+using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Application.Interfaces;
 using HRMS.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -34,8 +35,13 @@ namespace HRMS.API.Controllers
 
             if(result.IsSuccess)
             {
-                var data =_authService.GetUserRolePermissionsAsync(result.Data.ClientId,result.Data.UserId);
-                return Ok(data);
+                var userResult =_authService.GetUserRolePermissionsAsync(result.Data.ClientId,result.Data.UserId);
+
+                return Ok(new
+                {
+                    ErrorNo = 0,
+                    Data = userResult
+                });
             }
             return BadRequest(result);
         }

@@ -19,7 +19,7 @@ namespace HRMS.API.Middleware
         {
             var client = context.Items["Client"] as ClientEntity;
 
-            if (client != null && client.ExpiryDate < DateTime.UtcNow)
+            if (client != null && client.SubscriptionEndDate < DateTime.UtcNow)
             {
                 context.Response.StatusCode = 403;
                 await context.Response.WriteAsync("Subscription expired");

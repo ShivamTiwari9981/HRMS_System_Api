@@ -23,10 +23,9 @@ BEGIN
         UserId,UserName,FullName,UserEmail,ProfileImagePath,IsCompanyProfileCreated 
         FROM [USER]  WHERE ClientId = @ClientId AND UserId = @UserId AND IsActive = 1;
 
-
         ---------------------- Client ---------------------------
         SELECT TOP 1  
-        C.ClientId,C.ClientName,C.CompanyName,C.CompanyEmail,C.ExpiryDate
+        C.ClientId,C.CompanyName,C.CompanyEmail,C.SubscriptionStartDate,C.SubscriptionEndDate
         FROM CLIENT AS C
         WHERE C.ClientId = @ClientId
         AND C.IsActive = 1

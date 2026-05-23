@@ -121,7 +121,7 @@ namespace HRMS.Application.Services
 
                 // Verify password
                 if (!PasswordHelper.VerifyPassword(dto.Password, userDto.PasswordHash, userDto.UserSalt))
-                    return ApiResponse<ClientRolePermissionDto>.Fail(1, "Invalid email or password");
+                    return ApiResponse<ClientRolePermissionDto>.Fail(1, err_msg);
 
                 // Generate token
                 if (userDto.IsCompanyProfileCreated)
@@ -137,7 +137,7 @@ namespace HRMS.Application.Services
                     string token =  GenerateToken(usrRoleResult);
                     usrRoleResult.Token = token;
                 }
-               return ApiResponse<ClientRolePermissionDto>.Success(usrRoleResult, "Login successful");
+               return ApiResponse<ClientRolePermissionDto>.Success(usrRoleResult, err_msg);
             }
             catch (Exception ex)
             {

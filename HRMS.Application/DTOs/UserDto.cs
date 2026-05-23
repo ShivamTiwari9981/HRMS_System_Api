@@ -11,6 +11,5 @@ namespace HRMS.Application.DTOs
         public string PasswordHash { get; set; }
         public string UserSalt { get; set; }
         public bool IsCompanyProfileCreated { get; set; }
-        public string RoleName { get; set; }
     }
 }

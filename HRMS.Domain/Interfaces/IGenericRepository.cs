@@ -5,6 +5,7 @@ namespace HRMS.Domain.Interfaces
     public interface IGenericRepository<T> where T : class
     {
         // Read
+        Task<List<T>> GetAllAsync();
         Task<T?> GetByIdAsync(object id);
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate);
