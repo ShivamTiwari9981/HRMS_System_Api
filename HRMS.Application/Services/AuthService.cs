@@ -196,8 +196,9 @@ namespace HRMS.Application.Services
                 var claims = new List<Claim>
                 {
                       new Claim(ClaimTypes.Name, result.user.UserName),
-                      new Claim(Claim_Types.ClientId, result.user.ClientId.ToString()??string.Empty),
+                      new Claim(Claim_Types.ClientId, result.client.ClientId.ToString()??string.Empty),
                       new Claim(Claim_Types.UserId, result.user.UserId.ToString()),
+                      new Claim(Claim_Types.User, result.user.ToString()),
                       new Claim(Claim_Types.IsCompanyProfileCreated, result.user.IsCompanyProfileCreated.ToString())
                 };
 

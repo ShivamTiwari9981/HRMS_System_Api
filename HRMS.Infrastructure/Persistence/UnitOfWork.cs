@@ -15,6 +15,7 @@ namespace HRMS.Infrastructure.Persistence
 
         private readonly HRMSDbRepoContext _context;
         private IDbContextTransaction _transaction;
+        private ICurrentUserService _currentService;
         public IGenericRepository<ClientEntity> ClientRepository { get; }
         public IGenericRepository<UserEntity> UserRepository { get; }
         public IGenericRepository<UserRoleEntity> UserRoleRepository { get; }
@@ -23,19 +24,31 @@ namespace HRMS.Infrastructure.Persistence
         public IGenericRepository<MasterCodeGenerationEntity> MasterCodeGenerationRepository { get; }
         public IGenericRepository<HRMSAppSettingEntity> HRMSAppSettingRepository { get; }
         public IGenericRepository<SubscriptionPlanEntity> SubscriptionPlanRepository { get; }
-
-        public UnitOfWork(HRMSDbRepoContext context)
+        public IGenericRepository<DepartmentEntity> DepartmentRepository { get; }
+        public IGenericRepository<CountryEntity> CountryRepository { get; }
+        public IGenericRepository<StateEntity> StateRepository { get; }
+        public IGenericRepository<CityEntity> CityRepository { get; }
+        public IGenericRepository<EmployeeSalaryEntity> EmployeeSalaryRepository { get; }
+        public IGenericRepository<DesignationEntity> DesignationRepository { get; }
+        public UnitOfWork(HRMSDbRepoContext context , ICurrentUserService currentUser)
         {
             _context = context;
+            _currentService = currentUser;
 
-            ClientRepository = new GenericRepository<ClientEntity>(_context);
-            UserRepository = new GenericRepository<UserEntity>(_context);
-            UserRoleRepository = new GenericRepository<UserRoleEntity>(_context);
-            MasterCodeGenerationRepository = new GenericRepository<MasterCodeGenerationEntity>(_context);
-            RoleRepository = new GenericRepository<RoleEntity>(_context);
-            PerimssionRepository = new GenericRepository<PermissionEntity>(_context);
-            HRMSAppSettingRepository = new GenericRepository<HRMSAppSettingEntity>(_context);
-            SubscriptionPlanRepository = new GenericRepository<SubscriptionPlanEntity>(_context);
+            ClientRepository = new GenericRepository<ClientEntity>(_context,_currentService);
+            UserRepository = new GenericRepository<UserEntity>(_context, _currentService);
+            UserRoleRepository = new GenericRepository<UserRoleEntity>(_context, _currentService);
+            MasterCodeGenerationRepository = new GenericRepository<MasterCodeGenerationEntity>(_context, _currentService);
+            RoleRepository = new GenericRepository<RoleEntity>(_context, _currentService);
+            PerimssionRepository = new GenericRepository<PermissionEntity>(_context, _currentService);
+            HRMSAppSettingRepository = new GenericRepository<HRMSAppSettingEntity>(_context, _currentService);
+            SubscriptionPlanRepository = new GenericRepository<SubscriptionPlanEntity>(_context, _currentService);
+            DepartmentRepository = new GenericRepository<DepartmentEntity>(_context, _currentService);
+            CountryRepository = new GenericRepository<CountryEntity>(_context, _currentService);
+            StateRepository = new GenericRepository<StateEntity>(_context, _currentService);
+            CityRepository = new GenericRepository<CityEntity>(_context, _currentService);
+            EmployeeSalaryRepository = new GenericRepository<EmployeeSalaryEntity>(_context, _currentService);
+            DesignationRepository = new GenericRepository<DesignationEntity>(_context, _currentService);
         }
 
         public async Task<bool> SaveChangesAsync()

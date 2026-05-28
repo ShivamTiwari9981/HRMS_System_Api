@@ -6,9 +6,10 @@ using System.Data;
 
 namespace HRMS.Application.Services
 {
-    public class UtilityService :IUtilityService
+    public class UtilityService :BaseService,IUtilityService
     {
-        public (int err_no, string err_msg) GenerateMasterCode(IUnitOfWork _unitOfWork,Guid ClientId,string TableName)
+        public UtilityService(IUnitOfWork unitOfWork, ICurrentUserService currentSession) : base(unitOfWork, currentSession) { }
+        public (int err_no, string err_msg) GenerateMasterCode(string TableName)
         {
             int err_no = 0;
             string err_msg = "";
@@ -17,11 +18,15 @@ namespace HRMS.Application.Services
                 var param = new List<SqlParameter>();
                 param.Add(new SqlParameter("@ClientId", ClientId));
                 param.Add(new SqlParameter("@TableName", TableName));
+                param.Add(new SqlParameter("@CreatedBy", UserId));
                 param.Add(new SqlParameter("@ErrNo", SqlDbType.Int, 4, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_no));
-                param.Add(new SqlParameter("@ErrMsg", SqlDbType.VarChar, 200, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_msg));
-                var result = GenericProcedureCall.ExecuteStoredProcedure(GenericProcedureCall.StoredProcedure.sp_GenerateMasterCode, param, _unitOfWork.GetConnection());
+                param.Add(new SqlParameter("@Msg", SqlDbType.VarChar, 200, ParameterDirection.Output, true, 0, 0, null, DataRowVersion.Current, err_msg));
+                var result = GenericProcedureCall.ExecuteStoredProcedureWithTransation(GenericProcedureCall.StoredProcedure.sp_GenerateMasterCode,
+                    param, _unitOfWork.GetConnection(),
+                    _unitOfWork.GetTransaction()
+                    );
                 err_no = (int)param.Find(x => x.ParameterName == "@ErrNo")?.Value;
-                err_msg = param.Find(x => x.ParameterName == "@ErrMsg")?.Value.ToString() ?? "";
+                err_msg = param.Find(x => x.ParameterName == "@Msg")?.Value.ToString() ?? "";
 
             }
             catch (Exception ex)

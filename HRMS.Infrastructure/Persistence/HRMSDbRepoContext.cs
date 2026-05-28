@@ -27,8 +27,32 @@ namespace HRMS.Infrastructure.Persistence
         public DbSet<RolePermissionEntity> RolePermission { get; set; }
         public DbSet<UserRoleEntity> UserRole { get; set; }
         public DbSet<SubscriptionPlanEntity> SubscriptionPlan { get; set; }
-        
+        public DbSet<CountryEntity> Country { get; set; }
+        public DbSet<StateEntity> State { get; set; }
+        public DbSet<CityEntity> City { get; set; }
+        public DbSet<EmployeeSalaryEntity> EmployeeSalary { get; set; }
+        public DbSet<DesignationEntity> Designation { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DesignationEntity>()
+                .HasOne(x => x.Department)
+                .WithMany(x => x.Designations)
+                .HasForeignKey(x => x.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EmployeeEntity>()
+                .HasOne(x => x.Department)
+                .WithMany(x => x.Employees)
+                .HasForeignKey(x => x.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EmployeeEntity>()
+                .HasOne(x => x.Designation)
+                .WithMany(x => x.Employees)
+                .HasForeignKey(x => x.DesignationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{

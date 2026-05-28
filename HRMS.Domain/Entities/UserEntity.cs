@@ -18,9 +18,6 @@ namespace HRMS.Domain.Entities
         [MaxLength(20)]
         public string? UserCode { get; set; }
 
-        [MaxLength(200)]
-        public string? FullName { get; set; }
-
         [Required]
         [MaxLength(200)]
         public string UserName { get; set; }

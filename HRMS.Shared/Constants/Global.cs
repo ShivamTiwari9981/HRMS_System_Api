@@ -5,6 +5,7 @@
         public static string ClientId = "ClientId";
         public static class Claim_Types
         {
+            public static string User = "User";
             public static string ClientId = "ClientId";
             public static string UserId = "UserId";
             public static string UserName = "UserName";
@@ -25,6 +26,17 @@
             public static string Employee = "Employee";
             public static string Leave = "Leave";
             public static string Payroll = "Payroll";
+        }
+
+        public static class CodePrefix
+        {
+            public static string Client = "CLI";
+            public static string User = "USR";
+            public static string Attendance = "ATT";
+            public static string Department = "DEP";
+            public static string Employee = "EMP";
+            public static string Leave = "LEA";
+            public static string Payroll = "PAY";
         }
     }
 }

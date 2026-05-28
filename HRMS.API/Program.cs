@@ -2,7 +2,6 @@
 using HRMS.API.Extensions;
 using HRMS.Infrastructure.Persistence;
 using HRMS.Infrastructure.Persistence.Seeders;
-using HRMS.Shared.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

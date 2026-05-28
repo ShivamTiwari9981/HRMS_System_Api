@@ -14,6 +14,12 @@ namespace HRMS.Domain.Interfaces
         IGenericRepository<PermissionEntity> PerimssionRepository { get; }
         IGenericRepository<HRMSAppSettingEntity> HRMSAppSettingRepository { get; }
         IGenericRepository<SubscriptionPlanEntity> SubscriptionPlanRepository { get; }
+        IGenericRepository<DepartmentEntity> DepartmentRepository { get; }
+        IGenericRepository<CountryEntity> CountryRepository { get; }
+        IGenericRepository<StateEntity> StateRepository { get; }
+        IGenericRepository<CityEntity> CityRepository { get; }
+        IGenericRepository<EmployeeSalaryEntity> EmployeeSalaryRepository { get; }
+        IGenericRepository<DesignationEntity> DesignationRepository { get; }
         Task<bool> SaveChangesAsync();
         Task<IDbContextTransaction>BeginTransactionAsync();
         Task CommitTransactionAsync();

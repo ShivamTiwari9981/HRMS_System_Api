@@ -61,6 +61,40 @@ namespace HRMS.Application.Common
             }
         }
 
+    public static DataSet ExecuteStoredProcedureWithTransation(
+    string storedProcedureName,
+    IEnumerable<SqlParameter> parameters,
+    DbConnection dbConnection,
+    DbTransaction transaction = null)
+        {
+            using (var cmd = dbConnection.CreateCommand())
+            {
+                cmd.CommandText = storedProcedureName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                // IMPORTANT
+                cmd.Transaction = transaction;
+
+                foreach (var parameter in parameters)
+                {
+                    cmd.Parameters.Add(parameter);
+                }
+
+                using (var da = DbProviderFactories
+                    .GetFactory(dbConnection)
+                    .CreateDataAdapter())
+                {
+                    da.SelectCommand = cmd;
+
+                    var ds = new DataSet();
+
+                    da.Fill(ds);
+
+                    return ds;
+                }
+            }
+        }
+
         public static DataTable ExecuteFunctionProcedure(string functionProcedureName, IEnumerable<SqlParameter> parameters, DbConnection dbConnection)
         {
             var ds = new DataSet();

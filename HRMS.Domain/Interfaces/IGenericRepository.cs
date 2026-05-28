@@ -20,6 +20,8 @@ namespace HRMS.Domain.Interfaces
         void Update(T entity);
 
         Task SoftDeleteAsync(T entity);
+
+        Task ReopenAsync(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
 
