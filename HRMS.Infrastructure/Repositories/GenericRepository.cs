@@ -21,11 +21,11 @@ namespace HRMS.Infrastructure.Repositories
             _currentUser = currentUser;
         }
 
-        public GenericRepository(HRMSDbRepoContext context)
-        {
-            _context = context;
-            _dbSet = context.Set<T>();
-        }
+        //public GenericRepository(HRMSDbRepoContext context)
+        //{
+        //    _context = context;
+        //    _dbSet = context.Set<T>();
+        //}
 
         // -------------------- READ --------------------
 
@@ -57,8 +57,10 @@ namespace HRMS.Infrastructure.Repositories
 
         public async Task AddAsync(T entity)
         {
+
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = _currentUser.UserId;
+            entity.IsActive = true;
             await _dbSet.AddAsync(entity);
         }
 
@@ -81,6 +83,17 @@ namespace HRMS.Infrastructure.Repositories
         }
         public async Task SoftDeleteAsync(T entity)
         {
+            entity.IsActive = false;
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedBy = _currentUser.UserId;
+
+            _dbSet.Update(entity);
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ReopenAsync(T entity)
+        {
             entity.IsActive = true;
             entity.UpdatedAt = DateTime.UtcNow;
             entity.UpdatedBy = _currentUser.UserId;
@@ -89,6 +102,7 @@ namespace HRMS.Infrastructure.Repositories
 
             await Task.CompletedTask;
         }
+
         public void Remove(T entity)
         {
             _dbSet.Remove(entity);

@@ -1,15 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HRMS.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HRMS.Application.DTOs
 {
     public class DepartmentDto
     {
-        public string DepartmentCode { get; set; }
+        public Guid DepartmentId { get; set; }
+        [Required]
         public string DepartmentName { get; set; }
+
+
+        public DepartmentEntity GetEntity()
+        {
+            return new DepartmentEntity
+            {
+                DepartmentId = DepartmentId,
+                DepartmentName = DepartmentName,
+            };
+        }
     }
 }

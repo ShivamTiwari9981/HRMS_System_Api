@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HRMS.Domain.Entities
 {
-    [Index(nameof(ClientId), nameof(DepartmentCode), IsUnique = true)]
     [Index(nameof(ClientId), nameof(DepartmentName), IsUnique = true)]
+    [Index(nameof(ClientId), nameof(DepartmentCode), IsUnique = true)]
     public class DepartmentEntity : BaseEntity
     {
         [Key]
@@ -24,5 +24,15 @@ namespace HRMS.Domain.Entities
         [Required]
         [MaxLength(200)]
         public string DepartmentName { get; set; }
+
+        public string? Description { get; set; }
+
+        public int DisplayOrder { get; set; }
+
+        public virtual ICollection<DesignationEntity> Designations { get; set; }
+    = new List<DesignationEntity>();
+
+        public virtual ICollection<EmployeeEntity> Employees { get; set; }
+            = new List<EmployeeEntity>();
     }
 }

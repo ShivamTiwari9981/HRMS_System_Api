@@ -6,6 +6,7 @@
         {
             await MenuSeeder.SeedAsync(context);
             await SubscriptionPlanSeeder.SeedAsync(context);
+            //await MasterIdGenerationSeeder.SeedAsync(context);
 
             // Future
             // await RoleSeeder.SeedAsync(context);

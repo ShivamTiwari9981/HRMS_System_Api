@@ -20,7 +20,7 @@ BEGIN
 
          ---------------------- User ---------------------------
         SELECT TOP 1  
-        UserId,UserName,FullName,UserEmail,ProfileImagePath,IsCompanyProfileCreated 
+        UserId,UserName,UserEmail,ProfileImagePath,IsCompanyProfileCreated 
         FROM [USER]  WHERE ClientId = @ClientId AND UserId = @UserId AND IsActive = 1;
 
         ---------------------- Client ---------------------------

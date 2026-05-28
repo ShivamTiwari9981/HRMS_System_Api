@@ -7,4 +7,6 @@ namespace HRMS.Application.DTOs.ResponseDto
         public Guid RoleIds { get; set; }
         public string RoleNames { get; set; }
     }
+
+   
 }

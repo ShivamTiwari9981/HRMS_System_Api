@@ -18,24 +18,25 @@ namespace HRMS.Application.Services
 
         }
 
-        public async Task<bool> IsRoleExist()
+        #region Role
+        public async Task<ApiResponse<bool>> IsRoleExistAsync(Guid roleId)
         {
-            bool isRoleExist = await _unitOfWork.RoleRepository.AnyAsync(x => x.RoleId == RoleId && x.ClientId == ClientId);
-            return isRoleExist;
+            bool isRoleExist = await _unitOfWork.RoleRepository.AnyAsync(x => x.RoleId == roleId && x.ClientId == ClientId);
+            return ApiResponse<bool>.Success(isRoleExist);
         }
 
-        public async Task<ApiResponse<List<RoleResponseDto>>> GetAllRole()
+        public async Task<ApiResponse<List<RoleResponseDto>>> GetAllRoleAsync()
         {
             List<RoleEntity> roleEntity = await _unitOfWork.RoleRepository.WhereAsync(x => x.ClientId == ClientId);
 
             var dtoList = RoleMapper.ToDtoList(roleEntity);
 
             return ApiResponse<List<RoleResponseDto>>.Success(
-                     dtoList, "Role created successfully!"
+                     dtoList
                 );
         }
 
-        public async Task<ApiResponse<string>> AddRole(RoleRequestDto dto)
+        public async Task<ApiResponse<string>> AddRoleAsync(RoleRequestDto dto)
         {
             try
             {
@@ -62,6 +63,67 @@ namespace HRMS.Application.Services
                 return ApiResponse<string>.Fail(500, ex.Message);
             }
         }
+
+        public async Task<ApiResponse<bool>> UpdateRoleAsync(RoleRequestDto dto)
+        {
+            try
+            {
+                var dbResult = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
+                && x.RoleId == dto.RoleId
+                && x.IsActive == true);
+
+                if (dbResult.IsSystemRole)
+                    return ApiResponse<bool>.Fail(1, "System role can not updated");
+
+                dbResult.RoleName = dto.RoleName;
+                _unitOfWork.RoleRepository.Update(dbResult);
+
+                var result = await _unitOfWork.SaveChangesAsync();
+                return ApiResponse<bool>.Success(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> DeactivateRoleAsync(Guid RoleId)
+        {
+            try
+            {
+                var dbResult = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
+                && x.RoleId == RoleId && x.IsActive == true);
+
+                await _unitOfWork.RoleRepository.SoftDeleteAsync(dbResult);
+
+                var result = await _unitOfWork.SaveChangesAsync();
+                return ApiResponse<bool>.Success(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        public async Task<ApiResponse<bool>> RepopenRoleAsync(Guid RoleId)
+        {
+            try
+            {
+                var dbResult = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
+                && x.RoleId == RoleId && x.IsActive == false);
+
+                await _unitOfWork.RoleRepository.ReopenAsync(dbResult);
+
+                var result = await _unitOfWork.SaveChangesAsync();
+                return ApiResponse<bool>.Success(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
 
         public ApiResponse<string> AssignPermissions(AssignRolePermissionRequestDto dto)
         {

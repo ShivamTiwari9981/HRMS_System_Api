@@ -15,7 +15,6 @@ namespace HRMS.Application.Services
         
         protected Guid ClientId => _currentUserService.ClientId;
         protected Guid UserId => _currentUserService.UserId;
-        protected string ClientKey => _currentUserService.ClientKey;
         protected Guid RoleId => _currentUserService.RoleId;
     }
 }

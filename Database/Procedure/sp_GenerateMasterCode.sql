@@ -1,4 +1,4 @@
-﻿--select * from MasterCodeGeneration
+﻿--select * from MasterCodeGeneratio
 DROP PROCEDURE IF EXISTS sp_GenerateMasterCode;
 go
 CREATE  PROCEDURE sp_GenerateMasterCode 
