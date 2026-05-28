@@ -11,6 +11,8 @@ namespace HRMS.Domain.Interfaces
         Task<List<T>> WhereAsync(Expression<Func<T, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 
+        Task<TResult?> MaxAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector);
+
         // Write
 
         Task AddAsync(T entity);

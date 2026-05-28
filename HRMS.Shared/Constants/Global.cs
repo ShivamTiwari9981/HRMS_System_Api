@@ -26,6 +26,7 @@
             public static string Employee = "Employee";
             public static string Leave = "Leave";
             public static string Payroll = "Payroll";
+            public static string Designation = "Designation";
         }
 
         public static class CodePrefix

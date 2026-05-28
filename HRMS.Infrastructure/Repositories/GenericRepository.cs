@@ -48,6 +48,17 @@ namespace HRMS.Infrastructure.Repositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
+        public async Task<TResult?> MaxAsync<TResult>(
+    Expression<Func<T, bool>> predicate,
+    Expression<Func<T, TResult>> selector)
+        {
+            return await _dbSet
+                .Where(predicate)
+                .Select(selector)
+                .DefaultIfEmpty()
+                .MaxAsync();
+        }
+
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.AnyAsync(predicate);
