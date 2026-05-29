@@ -1,4 +1,6 @@
-﻿using HRMS.Application.DTOs.ResponseDto;
+﻿using HRMS.Application.DTOs.RequestDto;
+using HRMS.Application.DTOs.ResponseDto;
+using HRMS.Application.ExtensionMapper;
 using HRMS.Application.Interfaces;
 using HRMS.Domain.Entities;
 using HRMS.Domain.Enums;
@@ -69,12 +71,14 @@ namespace HRMS.Application.Services
             return ApiResponse<bool>.Success(IsCountryExist);
         }
 
-        public async Task<ApiResponse<List<CountryEntity>>> GetAllCountriesAsync()
+        public async Task<ApiResponse<List<CountryResponseDto>>> GetAllCountriesAsync()
         {
             try
             {
                 var countryList = await _unitOfWork.CountryRepository.GetAllAsync();
-                return ApiResponse<List<CountryEntity>>.Success(countryList);
+                var dtoList=CountryMapper.GetDtoList(countryList);
+
+                return ApiResponse<List<CountryResponseDto>>.Success(dtoList);
             }
             catch (Exception)
             {
@@ -82,14 +86,17 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<CountryEntity>> GeCountryByIdAsync(Guid CountryId)
+        public async Task<ApiResponse<CountryResponseDto>> GeCountryByIdAsync(Guid CountryId)
         {
             try
             {
-                var dbList = await _unitOfWork.CountryRepository.FirstOrDefaultAsync(
+                var dbResult = await _unitOfWork.CountryRepository.FirstOrDefaultAsync(
                     x => x.CountryId == CountryId
                     );
-                return ApiResponse<CountryEntity>.Success(dbList);
+
+                var dto = CountryMapper.GetDto(dbResult);
+
+                return ApiResponse<CountryResponseDto>.Success(dto);
             }
             catch (Exception)
             {
@@ -97,12 +104,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> SaveAsync(CountryEntity entity)
+        public async Task<ApiResponse<bool>> AddCountryAsync(CountryRequestDto dto)
         {
             try
             {
-                entity.CountryId = Guid.NewGuid();
+                var entity = CountryMapper.GetEntity(dto);
+
                 await _unitOfWork.CountryRepository.AddAsync(entity);
+
                 var result = await _unitOfWork.SaveChangesAsync();
 
                 return ApiResponse<bool>.Success(result);
@@ -113,12 +122,12 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateAsync(CountryEntity entity)
+        public async Task<ApiResponse<bool>> UpdateCountryAsync(CountryRequestDto dto)
         {
             try
             {
                 var dbResult = await _unitOfWork.CountryRepository.FirstOrDefaultAsync(
-                x => x.CountryId == entity.CountryId && x.IsActive == true);
+                x => x.CountryId == dto.CountryId && x.IsActive == true);
 
                 if(dbResult is null)
                     return ApiResponse<bool>.Fail(1,"Country is not found");
@@ -134,7 +143,7 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> DeactivateAsync(Guid CountryId)
+        public async Task<ApiResponse<bool>> DeactivateCountryAsync(Guid CountryId)
         {
             try
             {
@@ -152,14 +161,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> RepopenAsync(Guid CountryId)
+        public async Task<ApiResponse<bool>> ActivateCountryAsync(Guid CountryId)
         {
             try
             {
                 var dbResult = await _unitOfWork.CountryRepository.FirstOrDefaultAsync(x =>
                 x.CountryId == CountryId && x.IsActive == false);
 
-                await _unitOfWork.CountryRepository.ReopenAsync(dbResult);
+                await _unitOfWork.CountryRepository.ActivateAsync(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 return ApiResponse<bool>.Success(result);
@@ -193,12 +202,14 @@ namespace HRMS.Application.Services
             return ApiResponse<bool>.Success(IsCountryExist);
         }
 
-        public async Task<ApiResponse<List<StateEntity>>> GetAllStatesAsync()
+        public async Task<ApiResponse<List<StateResponseDto>>> GetAllStatesAsync()
         {
             try
             {
                 var StateList = await _unitOfWork.StateRepository.GetAllAsync();
-                return ApiResponse<List<StateEntity>>.Success(StateList);
+                var dtoList = StateMapper.GetDtoList(StateList);
+
+                return ApiResponse<List<StateResponseDto>>.Success(dtoList);
             }
             catch (Exception)
             {
@@ -206,15 +217,15 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<StateEntity>> GeStateByIdAsync(Guid StateId)
+        public async Task<ApiResponse<StateResponseDto>> GeStateByIdAsync(Guid StateId)
         {
             try
             {
-                var dbList = await _unitOfWork.StateRepository.FirstOrDefaultAsync(
+                var dbResult = await _unitOfWork.StateRepository.FirstOrDefaultAsync(x => x.StateId == StateId);
+               
+                var dto = StateMapper.GetDto(dbResult);
 
-                    x => x.StateId == StateId
-                    );
-                return ApiResponse<StateEntity>.Success(dbList);
+                return ApiResponse<StateResponseDto>.Success(dto);
             }
             catch (Exception)
             {
@@ -222,14 +233,17 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<StateEntity>> GeStateByCountryIdAsync(Guid CountryId)
+        public async Task<ApiResponse<StateResponseDto>> GeStateByCountryIdAsync(Guid CountryId)
         {
             try
             {
-                var dbList = await _unitOfWork.StateRepository.FirstOrDefaultAsync(
+                var dbResult = await _unitOfWork.StateRepository.FirstOrDefaultAsync(
                     x => x.CountryId == CountryId
                     );
-                return ApiResponse<StateEntity>.Success(dbList);
+
+                var dto = StateMapper.GetDto(dbResult);
+
+                return ApiResponse<StateResponseDto>.Success(dto);
             }
             catch (Exception)
             {
@@ -237,12 +251,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> SaveStateAsync(StateEntity entity)
+        public async Task<ApiResponse<bool>> AddStateAsync(StateRequestDto dto)
         {
             try
             {
-                entity.StateId= Guid.NewGuid();
+                var entity = StateMapper.GetEntity(dto);
+
                 await _unitOfWork.StateRepository.AddAsync(entity);
+
                 var result = await _unitOfWork.SaveChangesAsync();
 
                 return ApiResponse<bool>.Success(result);
@@ -253,12 +269,12 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateStateAsync(StateEntity entity)
+        public async Task<ApiResponse<bool>> UpdateStateAsync(StateRequestDto dto)
         {
             try
             {
                 var dbResult = await _unitOfWork.StateRepository.FirstOrDefaultAsync(
-                x => x.CountryId == entity.CountryId && x.StateId == entity.StateId 
+                x => x.CountryId == dto.CountryId && x.StateId == dto.StateId 
                 && x.IsActive == true);
 
                 if (dbResult is null)
@@ -293,14 +309,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> RepopenStateAsync(Guid StateId)
+        public async Task<ApiResponse<bool>> ActivateStateAsync(Guid StateId)
         {
             try
             {
                 var dbResult = await _unitOfWork.StateRepository.FirstOrDefaultAsync(x =>
                 x.StateId == StateId && x.IsActive == false);
 
-                await _unitOfWork.StateRepository.ReopenAsync(dbResult);
+                await _unitOfWork.StateRepository.ActivateAsync(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 return ApiResponse<bool>.Success(result);
@@ -332,12 +348,15 @@ namespace HRMS.Application.Services
             return ApiResponse<bool>.Success(IsCityExist);
         }
 
-        public async Task<ApiResponse<List<CityEntity>>> GetAllCityAsync()
+        public async Task<ApiResponse<List<CityResponseDto>>> GetAllCityAsync()
         {
             try
             {
-                var CityList = await _unitOfWork.CityRepository.GetAllAsync();
-                return ApiResponse<List<CityEntity>>.Success(CityList);
+                var cityList = await _unitOfWork.CityRepository.GetAllAsync();
+
+                var dtoList = CityMapper.GetDtoList(cityList);
+
+                return ApiResponse<List<CityResponseDto>>.Success(dtoList);
             }
             catch (Exception)
             {
@@ -345,15 +364,17 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<CityEntity>> GeCityByIdAsync(Guid CityId)
+        public async Task<ApiResponse<CityResponseDto>> GeCityByIdAsync(Guid CityId)
         {
             try
             {
-                var dbList = await _unitOfWork.CityRepository.FirstOrDefaultAsync(
+                var dbResult = await _unitOfWork.CityRepository.FirstOrDefaultAsync(
 
                     x => x.CityId == CityId
                     );
-                return ApiResponse<CityEntity>.Success(dbList);
+                var dto = CityMapper.GetDto(dbResult);
+
+                return ApiResponse<CityResponseDto>.Success(dto);
             }
             catch (Exception)
             {
@@ -361,14 +382,17 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<CityEntity>> GeCityByStateIdAsync(Guid StateId)
+        public async Task<ApiResponse<CityResponseDto>> GeCityByStateIdAsync(Guid StateId)
         {
             try
             {
-                var dbList = await _unitOfWork.CityRepository.FirstOrDefaultAsync(
+                var dbResult = await _unitOfWork.CityRepository.FirstOrDefaultAsync(
                     x => x.StateId == StateId
                     );
-                return ApiResponse<CityEntity>.Success(dbList);
+
+                var dto = CityMapper.GetDto(dbResult);
+
+                return ApiResponse<CityResponseDto>.Success(dto);
             }
             catch (Exception)
             {
@@ -376,12 +400,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> SaveCityAsync(CityEntity entity)
+        public async Task<ApiResponse<bool>> AddCityAsync(CityRequestDto dto)
         {
             try
             {
-                entity.CityId = Guid.NewGuid();
+                var entity = CityMapper.GetEntity(dto);
+
                 await _unitOfWork.CityRepository.AddAsync(entity);
+
                 var result = await _unitOfWork.SaveChangesAsync();
 
                 return ApiResponse<bool>.Success(result);
@@ -392,20 +418,23 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateCityAsync(CityEntity entity)
+        public async Task<ApiResponse<bool>> UpdateCityAsync(CityRequestDto dto)
         {
             try
             {
                 var dbResult = await _unitOfWork.CityRepository.FirstOrDefaultAsync(
-                x => x.CityId == entity.CityId && x.StateId == entity.StateId
+                x => x.CityId == dto.CityId && x.StateId == dto.StateId
                 && x.IsActive == true);
 
                 if (dbResult is null)
                     return ApiResponse<bool>.Fail(1, "City is not found");
 
+                dbResult.CityName = dto.CityName;
+
                 _unitOfWork.CityRepository.Update(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
+
                 return ApiResponse<bool>.Success(result);
             }
             catch (Exception)
@@ -432,14 +461,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> RepopenCityAsync(Guid CityId)
+        public async Task<ApiResponse<bool>> ActivateCityAsync(Guid CityId)
         {
             try
             {
                 var dbResult = await _unitOfWork.CityRepository.FirstOrDefaultAsync(x =>
                 x.CityId == CityId && x.IsActive == false);
 
-                await _unitOfWork.CityRepository.ReopenAsync(dbResult);
+                await _unitOfWork.CityRepository.ActivateAsync(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 return ApiResponse<bool>.Success(result);

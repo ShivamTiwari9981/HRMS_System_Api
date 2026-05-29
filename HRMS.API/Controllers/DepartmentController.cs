@@ -1,4 +1,5 @@
 ﻿using HRMS.Application.DTOs;
+using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,14 +44,13 @@ namespace HRMS.API.Controllers
 
         // POST: api/department
         [HttpPost]
-        public async Task<IActionResult> SaveDepartmentAsync([FromBody] DepartmentDto department)
+        public async Task<IActionResult> SaveDepartmentAsync([FromBody] DepartmentRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var entity = department.GetEntity();
 
-            var result = await _departmentService.SaveAsync(entity);
+            var result = await _departmentService.AddDepartmentAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -62,12 +62,12 @@ namespace HRMS.API.Controllers
         [HttpPut("{departmentId:guid}")]
         public async Task<IActionResult> UpdateDepartmentAsync(
             Guid departmentId,
-            [FromBody] DepartmentDto department)
+            [FromBody] DepartmentRequestDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (departmentId != department.DepartmentId)
+            if (departmentId != dto.DepartmentId)
                 return BadRequest("DepartmentId mismatch.");
 
             var response = await _departmentService.IsDepartmentExist(departmentId);
@@ -75,9 +75,7 @@ namespace HRMS.API.Controllers
             if (!response.IsSuccess)
                 return NotFound(response.Message);
 
-            var entity = department.GetEntity();
-
-            var result = await _departmentService.UpdateAsync(entity);
+            var result = await _departmentService.UpdateDepartmentAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -89,7 +87,7 @@ namespace HRMS.API.Controllers
         [HttpDelete("{departmentId:guid}")]
         public async Task<IActionResult> DeleteDepartmentAsync(Guid departmentId)
         {
-            var response = await _departmentService.DeactivateAsync(departmentId);
+            var response = await _departmentService.DeactivateDepartmentAsync(departmentId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);
@@ -97,11 +95,11 @@ namespace HRMS.API.Controllers
             return Ok(response);
         }
 
-        // PUT: api/department/{departmentId}/restore
-        [HttpPut("{departmentId:guid}/restore")]
-        public async Task<IActionResult> RestoreDepartmentAsync(Guid departmentId)
+        // PUT: api/department/{departmentId}/activate
+        [HttpPut("{departmentId:guid}/activate")]
+        public async Task<IActionResult> ActivateDepartmentAsync(Guid departmentId)
         {
-            var response = await _departmentService.RepopenAsync(departmentId);
+            var response = await _departmentService.ActivateDepartmentAsync(departmentId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);

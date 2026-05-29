@@ -37,9 +37,7 @@ namespace HRMS.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.StateName))
                 return BadRequest("State Name is required field.");
 
-            var entity = dto.GetEntity();
-
-            var result = await _masterService.SaveStateAsync(entity);
+            var result = await _masterService.AddStateAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -47,8 +45,8 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        // PUT: api/State/{StateId}
-        [HttpPut("{StateId:guid}")]
+        // PUT: api/State/{stateId}
+        [HttpPut("{stateId:guid}")]
         public async Task<IActionResult> UpdateStateAsync(
             Guid StateId,
             [FromBody] StateRequestDto dto)
@@ -64,9 +62,7 @@ namespace HRMS.API.Controllers
             if (!response.IsSuccess)
                 return NotFound(response.Message);
 
-            var entity = dto.GetEntity();
-
-            var result = await _masterService.UpdateStateAsync(entity);
+            var result = await _masterService.UpdateStateAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -75,7 +71,7 @@ namespace HRMS.API.Controllers
         }
 
         // DELETE: api/State/{Stateid}
-        [HttpDelete("{StateId:guid}")]
+        [HttpDelete("{stateId:guid}")]
         public async Task<IActionResult> DeleteStateAsync(Guid StateId)
         {
             var response = await _masterService.DeactivateStateAsync(StateId);
@@ -87,10 +83,10 @@ namespace HRMS.API.Controllers
         }
 
         // PUT: api/State/{StateId}/restore
-        [HttpPut("{StateId:guid}/restore")]
+        [HttpPut("{stateId:guid}/restore")]
         public async Task<IActionResult> RestoreStateAsync(Guid StateId)
         {
-            var response = await _masterService.RepopenStateAsync(StateId);
+            var response = await _masterService.ActivateStateAsync(StateId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);

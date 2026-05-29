@@ -9,14 +9,5 @@ namespace HRMS.Application.DTOs.RequestDto
 
         [Required]
         public string CountryName { get; set; }
-
-        public CountryEntity GetEntity()
-        {
-            return new CountryEntity
-            {
-                CountryId = CountryId,
-                CountryName = CountryName,
-            };
-        }
     }
 }

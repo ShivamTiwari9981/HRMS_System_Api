@@ -48,16 +48,7 @@ namespace HRMS.Infrastructure.Repositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
-        public async Task<TResult?> MaxAsync<TResult>(
-    Expression<Func<T, bool>> predicate,
-    Expression<Func<T, TResult>> selector)
-        {
-            return await _dbSet
-                .Where(predicate)
-                .Select(selector)
-                .DefaultIfEmpty()
-                .MaxAsync();
-        }
+        public async Task<TResult?> MaxAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selector) { return await _dbSet.Where(predicate).Select(selector).DefaultIfEmpty().MaxAsync(); }
 
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
         {
@@ -103,7 +94,7 @@ namespace HRMS.Infrastructure.Repositories
             await Task.CompletedTask;
         }
 
-        public async Task ReopenAsync(T entity)
+        public async Task ActivateAsync(T entity)
         {
             entity.IsActive = true;
             entity.UpdatedAt = DateTime.UtcNow;

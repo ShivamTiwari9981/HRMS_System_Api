@@ -95,7 +95,7 @@ namespace HRMS.API.Controllers
         [HttpPut("{DesignationId:guid}/restore")]
         public async Task<IActionResult> RestoreDesignationAsync(Guid DesignationId)
         {
-            var response = await _designationService.ReopenDesignationAsync(DesignationId);
+            var response = await _designationService.ActivateDesignationAsync(DesignationId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);
@@ -103,5 +103,4 @@ namespace HRMS.API.Controllers
             return Ok(response);
         }
     }
-}
 }

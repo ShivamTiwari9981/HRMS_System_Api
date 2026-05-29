@@ -23,7 +23,7 @@ namespace HRMS.Domain.Interfaces
 
         Task SoftDeleteAsync(T entity);
 
-        Task ReopenAsync(T entity);
+        Task ActivateAsync(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
 

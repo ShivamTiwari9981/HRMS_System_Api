@@ -1,26 +1,15 @@
-﻿using HRMS.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace HRMS.Application.DTOs.RequestDto
 {
     public class CityRequestDto
     {
-        public Guid CityId { get; set; }
+        public Guid CityId { get; set; } = Guid.Empty;
 
         [Required]
         public Guid StateId { get; set; }
 
         [Required]
         public string CityName { get; set; }
-
-        public CityEntity GetEntity()
-        {
-            return new CityEntity
-            {
-                CityId = CityId,
-                StateId = StateId,
-                CityName = CityName,
-            };
-        }
     }
 }

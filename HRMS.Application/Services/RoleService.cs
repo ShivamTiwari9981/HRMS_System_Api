@@ -106,14 +106,14 @@ namespace HRMS.Application.Services
         }
 
 
-        public async Task<ApiResponse<bool>> RepopenRoleAsync(Guid RoleId)
+        public async Task<ApiResponse<bool>> ActivateRoleAsync(Guid RoleId)
         {
             try
             {
                 var dbResult = await _unitOfWork.RoleRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
                 && x.RoleId == RoleId && x.IsActive == false);
 
-                await _unitOfWork.RoleRepository.ReopenAsync(dbResult);
+                await _unitOfWork.RoleRepository.ActivateAsync(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 return ApiResponse<bool>.Success(result);

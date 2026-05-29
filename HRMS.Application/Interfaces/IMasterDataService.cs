@@ -1,4 +1,5 @@
-﻿using HRMS.Application.DTOs.ResponseDto;
+﻿using HRMS.Application.DTOs.RequestDto;
+using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Domain.Entities;
 using HRMS.Shared.Dto;
 
@@ -13,36 +14,36 @@ namespace HRMS.Application.Interfaces
         #region Country
         Task<ApiResponse<bool>> IsCountryExist(string CountryName);
         Task<ApiResponse<bool>> IsCountryExistById(Guid CountryId);
-        Task<ApiResponse<List<CountryEntity>>> GetAllCountriesAsync();
-        Task<ApiResponse<CountryEntity>> GeCountryByIdAsync(Guid CountryId);
-        Task<ApiResponse<bool>> SaveAsync(CountryEntity entity);
-        Task<ApiResponse<bool>> UpdateAsync(CountryEntity entity);
-        Task<ApiResponse<bool>> DeactivateAsync(Guid CountryId);
-        Task<ApiResponse<bool>> RepopenAsync(Guid CountryId);
+        Task<ApiResponse<List<CountryResponseDto>>> GetAllCountriesAsync();
+        Task<ApiResponse<CountryResponseDto>> GeCountryByIdAsync(Guid CountryId);
+        Task<ApiResponse<bool>> AddCountryAsync(CountryRequestDto entity);
+        Task<ApiResponse<bool>> UpdateCountryAsync(CountryRequestDto entity);
+        Task<ApiResponse<bool>> DeactivateCountryAsync(Guid CountryId);
+        Task<ApiResponse<bool>> ActivateCountryAsync(Guid CountryId);
         #endregion
 
         #region State
         Task<ApiResponse<bool>> IsStateExist(string StateName);
-        Task<ApiResponse<List<StateEntity>>> GetAllStatesAsync();
-        Task<ApiResponse<StateEntity>> GeStateByIdAsync(Guid StateId);
+        Task<ApiResponse<List<StateResponseDto>>> GetAllStatesAsync();
+        Task<ApiResponse<StateResponseDto>> GeStateByIdAsync(Guid StateId);
         Task<ApiResponse<bool>> IsStateExistById(Guid StateId);
-        Task<ApiResponse<StateEntity>> GeStateByCountryIdAsync(Guid CountryId);
-        Task<ApiResponse<bool>> SaveStateAsync(StateEntity entity);
-        Task<ApiResponse<bool>> UpdateStateAsync(StateEntity entity);
+        Task<ApiResponse<StateResponseDto>> GeStateByCountryIdAsync(Guid CountryId);
+        Task<ApiResponse<bool>> AddStateAsync(StateRequestDto entity);
+        Task<ApiResponse<bool>> UpdateStateAsync(StateRequestDto entity);
         Task<ApiResponse<bool>> DeactivateStateAsync(Guid StateId);
-        Task<ApiResponse<bool>> RepopenStateAsync(Guid StateId);
+        Task<ApiResponse<bool>> ActivateStateAsync(Guid StateId);
         #endregion
 
         #region City
         Task<ApiResponse<bool>> IsCityExist(string CityName);
         Task<ApiResponse<bool>> IsCityExistById(Guid CityId);
-        Task<ApiResponse<List<CityEntity>>> GetAllCityAsync();
-        Task<ApiResponse<CityEntity>> GeCityByIdAsync(Guid CityId);
-        Task<ApiResponse<CityEntity>> GeCityByStateIdAsync(Guid StateId);
-        Task<ApiResponse<bool>> SaveCityAsync(CityEntity entity);
-        Task<ApiResponse<bool>> UpdateCityAsync(CityEntity entity);
+        Task<ApiResponse<List<CityResponseDto>>> GetAllCityAsync();
+        Task<ApiResponse<CityResponseDto>> GeCityByIdAsync(Guid CityId);
+        Task<ApiResponse<CityResponseDto>> GeCityByStateIdAsync(Guid StateId);
+        Task<ApiResponse<bool>> AddCityAsync(CityRequestDto entity);
+        Task<ApiResponse<bool>> UpdateCityAsync(CityRequestDto entity);
         Task<ApiResponse<bool>> DeactivateCityAsync(Guid StateId);
-        Task<ApiResponse<bool>> RepopenCityAsync(Guid CityId);
+        Task<ApiResponse<bool>> ActivateCityAsync(Guid CityId);
         #endregion
 
 
