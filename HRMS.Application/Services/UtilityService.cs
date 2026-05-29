@@ -1,12 +1,14 @@
 ﻿using HRMS.Application.Common;
 using HRMS.Application.Interfaces;
 using HRMS.Domain.Interfaces;
+using HRMS.Shared.Enums;
 using Microsoft.Data.SqlClient;
+using System;
 using System.Data;
 
 namespace HRMS.Application.Services
 {
-    public class UtilityService :BaseService,IUtilityService
+    public class UtilityService : BaseService, IUtilityService
     {
         public UtilityService(IUnitOfWork unitOfWork, ICurrentUserService currentSession) : base(unitOfWork, currentSession) { }
         public (int err_no, string err_msg) GenerateMasterCode(string TableName)
@@ -37,6 +39,40 @@ namespace HRMS.Application.Services
             return (err_no, err_msg);
         }
 
+        public async Task<int> GetNextDisplayOrderAsync(DisplayOrderType type, Guid Id )
+        {
+            switch (type)
+            {
+                case DisplayOrderType.Department:
+
+                    int departmentMaxOrder = await _unitOfWork
+                        .DepartmentRepository
+                        .MaxAsync(
+                            x => x.ClientId == ClientId
+                              && x.DepartmentId == Id,
+                              x => x.DisplayOrder
+                        );
+
+                    return departmentMaxOrder + 1;
+
+
+                case DisplayOrderType.Designation:
+
+                    int designationMaxOrder = await _unitOfWork
+                        .DesignationRepository
+                        .MaxAsync(
+                            x => x.ClientId == ClientId
+                              && x.DepartmentId == Id, 
+                              x=> x.DisplayOrder
+                        ) ?? 0;
+
+                    return designationMaxOrder + 1;
+
+
+                default:
+                    throw new Exception("Invalid display order type");
+            }
+        }
 
     }
 }

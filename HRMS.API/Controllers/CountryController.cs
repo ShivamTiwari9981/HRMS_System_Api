@@ -34,9 +34,7 @@ namespace HRMS.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var entity = dto.GetEntity();
-
-            var result = await _masterService.SaveAsync(entity);
+            var result = await _masterService.AddCountryAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -44,8 +42,8 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        // PUT: api/country/{CountryId}
-        [HttpPut("{CountryId:guid}")]
+        // PUT: api/country/{countryId}
+        [HttpPut("{countryId:guid}")]
         public async Task<IActionResult> UpdateCountryAsync(
             Guid CountryId,
             [FromBody] CountryRequestDto dto)
@@ -61,9 +59,8 @@ namespace HRMS.API.Controllers
             if (!response.IsSuccess)
                 return NotFound(response.Message);
 
-            var entity = dto.GetEntity();
 
-            var result = await _masterService.UpdateAsync(entity);
+            var result = await _masterService.UpdateCountryAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -71,11 +68,11 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/country/{Countryid}
-        [HttpDelete("{CountryId:guid}")]
+        // DELETE: api/country/{countryId}
+        [HttpDelete("{countryId:guid}")]
         public async Task<IActionResult> DeleteCountryAsync(Guid CountryId)
         {
-            var response = await _masterService.DeactivateAsync(CountryId);
+            var response = await _masterService.DeactivateCountryAsync(CountryId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);
@@ -83,11 +80,11 @@ namespace HRMS.API.Controllers
             return Ok(response);
         }
 
-        // PUT: api/Country/{CountryId}/restore
-        [HttpPut("{CountryId:guid}/restore")]
-        public async Task<IActionResult> RestoreCountryAsync(Guid CountryId)
+        // PUT: api/Country/{countryId}/activate
+        [HttpPut("{countryId:guid}/activate")]
+        public async Task<IActionResult>ActivateCountryAsync(Guid CountryId)
         {
-            var response = await _masterService.RepopenAsync(CountryId);
+            var response = await _masterService.ActivateCountryAsync(CountryId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);

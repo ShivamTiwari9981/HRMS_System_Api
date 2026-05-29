@@ -11,7 +11,7 @@ namespace HRMS.Application.Interfaces
         Task<ApiResponse<string>> AddRoleAsync(RoleRequestDto dto);
         Task<ApiResponse<bool>> UpdateRoleAsync(RoleRequestDto enity);
         Task<ApiResponse<bool>> DeactivateRoleAsync(Guid RoleId);
-        Task<ApiResponse<bool>> RepopenRoleAsync(Guid RoleId);
+        Task<ApiResponse<bool>> ActivateRoleAsync(Guid RoleId);
         ApiResponse<string> AssignPermissions(AssignRolePermissionRequestDto dto);
     }
 }

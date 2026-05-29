@@ -1,8 +1,9 @@
-﻿using HRMS.Application.DTOs;
+﻿using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.DTOs.ResponseDto;
+using HRMS.Application.ExtensionMapper;
 using HRMS.Application.Interfaces;
-using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
+using HRMS.Shared.Enums;
 using static HRMS.Shared.Constants.Global;
 
 namespace HRMS.Application.Services
@@ -27,12 +28,14 @@ namespace HRMS.Application.Services
         }
 
 
-        public async Task<ApiResponse<List<DepartmentEntity>>> GetAllDepartmentsAsync()
+        public async Task<ApiResponse<List<DepartmentResponseDto>>> GetAllDepartmentsAsync()
         {
             try
             {
                 var deaprtmentList = await _unitOfWork.DepartmentRepository.WhereAsync(x => x.ClientId == ClientId);
-                return ApiResponse<List<DepartmentEntity>>.Success(deaprtmentList);
+                var dtoList = DepartmentMapper.GetDtoList(deaprtmentList);
+
+                return ApiResponse<List<DepartmentResponseDto>>.Success(dtoList);
             }
             catch (Exception)
             {
@@ -40,15 +43,18 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<DepartmentEntity>> GetDepartmentByIdAsync(Guid DepartmentId)
+        public async Task<ApiResponse<DepartmentResponseDto>> GetDepartmentByIdAsync(Guid DepartmentId)
         {
             try
             {
-                var deaprtmentList = await _unitOfWork.DepartmentRepository.FirstOrDefaultAsync(
+                var deaprtment = await _unitOfWork.DepartmentRepository.FirstOrDefaultAsync(
                     x => x.ClientId == ClientId
                     && x.DepartmentId == DepartmentId
                     );
-                return ApiResponse<DepartmentEntity>.Success(deaprtmentList);
+
+                var dto = DepartmentMapper.GetDto(deaprtment);
+
+                return ApiResponse<DepartmentResponseDto>.Success(dto);
             }
             catch (Exception)
             {
@@ -56,10 +62,17 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> SaveAsync(DepartmentEntity department)
+        public async Task<ApiResponse<bool>> AddDepartmentAsync(DepartmentRequestDto dto)
         {
             try
             {
+                bool IsDepartmentExist = await _unitOfWork.DepartmentRepository.AnyAsync(x => x.ClientId == ClientId
+                 && x.DepartmentName == dto.DepartmentName
+                );
+
+                if (IsDepartmentExist)
+                    return ApiResponse<bool>.Fail(1, "Department already exist");
+
                 await _unitOfWork.BeginTransactionAsync();
                 var codeResult = _utilityService.GenerateMasterCode(MasterTable.Department);
 
@@ -67,12 +80,13 @@ namespace HRMS.Application.Services
                 {
                     await _unitOfWork.RollbackTransactionAsync();
                     return ApiResponse<bool>.Fail(1,codeResult.err_msg);
-                    
                 }
-                department.DepartmentCode = codeResult.err_msg;
-                department.ClientId = ClientId;
 
-                await _unitOfWork.DepartmentRepository.AddAsync(department);
+                var entity = DepartmentMapper.GetEntity(dto,ClientId);
+
+                entity.DisplayOrder = entity.DisplayOrder = await _utilityService.GetNextDisplayOrderAsync(DisplayOrderType.Designation, entity.DepartmentId);
+
+                await _unitOfWork.DepartmentRepository.AddAsync(entity);
                 var result = await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitTransactionAsync();
@@ -85,15 +99,15 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> UpdateAsync(DepartmentEntity department)
+        public async Task<ApiResponse<bool>> UpdateDepartmentAsync(DepartmentRequestDto dto)
         {
             try
             {
                 var dbResult = await _unitOfWork.DepartmentRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
-                && x.DepartmentId == department.DepartmentId && x.IsActive == true);
+                && x.DepartmentId == dto.DepartmentId && x.IsActive == true);
 
 
-                dbResult.DepartmentName = department.DepartmentName;
+                dbResult.DepartmentName = dto.DepartmentName;
                 _unitOfWork.DepartmentRepository.Update(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
@@ -105,7 +119,7 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> DeactivateAsync(Guid departmentId)
+        public async Task<ApiResponse<bool>> DeactivateDepartmentAsync(Guid departmentId)
         {
             try
             {
@@ -123,14 +137,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> RepopenAsync(Guid departmentId)
+        public async Task<ApiResponse<bool>> ActivateDepartmentAsync(Guid departmentId)
         {
             try
             {
                 var dbResult = await _unitOfWork.DepartmentRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
                 && x.DepartmentId == departmentId && x.IsActive == false);
 
-                await _unitOfWork.DepartmentRepository.ReopenAsync(dbResult);
+                await _unitOfWork.DepartmentRepository.ActivateAsync(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 return ApiResponse<bool>.Success(result);

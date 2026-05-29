@@ -34,9 +34,7 @@ namespace HRMS.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var entity = dto.GetEntity();
-
-            var result = await _masterService.SaveCityAsync(entity);
+            var result = await _masterService.AddCityAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -44,8 +42,8 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        // PUT: api/City/{CityId}
-        [HttpPut("{CityId:guid}")]
+        // PUT: api/City/{cityId}
+        [HttpPut("{cityId:guid}")]
         public async Task<IActionResult> UpdateCityAsync(
             Guid CityId,
             [FromBody] CityRequestDto dto)
@@ -61,9 +59,8 @@ namespace HRMS.API.Controllers
             if (!response.IsSuccess)
                 return NotFound(response.Message);
 
-            var entity = dto.GetEntity();
 
-            var result = await _masterService.UpdateCityAsync(entity);
+            var result = await _masterService.UpdateCityAsync(dto);
 
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -71,8 +68,8 @@ namespace HRMS.API.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/City/{Cityid}
-        [HttpDelete("{CityId:guid}")]
+        // DELETE: api/City/{cityId}
+        [HttpDelete("{cityId:guid}")]
         public async Task<IActionResult> DeleteCityAsync(Guid CityId)
         {
             var response = await _masterService.DeactivateCityAsync(CityId);
@@ -84,10 +81,10 @@ namespace HRMS.API.Controllers
         }
 
         // PUT: api/City/{CityId}/restore
-        [HttpPut("{CityId:guid}/restore")]
-        public async Task<IActionResult> RestoreCityAsync(Guid CityId)
+        [HttpPut("{cityId:guid}/activate")]
+        public async Task<IActionResult> ActivateCityAsync(Guid CityId)
         {
-            var response = await _masterService.RepopenCityAsync(CityId);
+            var response = await _masterService.ActivateCityAsync(CityId);
 
             if (!response.IsSuccess)
                 return NotFound(response.Message);

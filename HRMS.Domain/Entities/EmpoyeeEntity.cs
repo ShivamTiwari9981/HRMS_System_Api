@@ -39,7 +39,7 @@ namespace HRMS.Domain.Entities
         public string EmployeeEmail { get; set; }
 
         [MaxLength(20)]
-        public string? Phone { get; set; }
+        public string Phone { get; set; }
 
         [Required]
         public Guid DepartmentId { get; set; }

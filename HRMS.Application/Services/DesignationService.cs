@@ -3,6 +3,8 @@ using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Application.ExtensionMapper;
 using HRMS.Application.Interfaces;
 using HRMS.Domain.Interfaces;
+using HRMS.Shared.Enums;
+using System;
 using static HRMS.Shared.Constants.Global;
 
 namespace HRMS.Application.Services
@@ -67,34 +69,63 @@ namespace HRMS.Application.Services
         {
             try
             {
+                bool departmentExists = await _unitOfWork
+                    .DepartmentRepository
+                    .AnyAsync(x =>
+                        x.ClientId == ClientId &&
+                        x.DepartmentId == dto.DepartmentId);
+
+                if (!departmentExists)
+                {
+                    return ApiResponse<bool>.Fail(1, "Department not found");
+                }
+
+                bool isExist = await _unitOfWork
+                    .DesignationRepository
+                    .AnyAsync(x =>
+                        x.ClientId == ClientId &&
+                        x.DepartmentId == dto.DepartmentId &&
+                        x.DesignationName.ToLower().Trim()
+                            == dto.DesignationName.ToLower().Trim());
+
+                if (isExist)
+                {
+                    return ApiResponse<bool>.Fail(1,"Designation already exists for this department!");
+                }
+
+                var entity = dto.GetEntity();
+
                 await _unitOfWork.BeginTransactionAsync();
-                var codeResult = _utilityService.GenerateMasterCode(MasterTable.Designation);
+
+                var codeResult = _utilityService
+                    .GenerateMasterCode(MasterTable.Designation);
 
                 if (codeResult.err_no != 0)
                 {
-                    await _unitOfWork.RollbackTransactionAsync();
-                    return ApiResponse<bool>.Fail(1, codeResult.err_msg);
-
+                    return ApiResponse<bool>
+                        .Fail(1, codeResult.err_msg);
                 }
 
-                var entity = DesignationMapper.GetEntity(dto);
-
-                entity.DesignationCode = codeResult.err_msg;
                 entity.ClientId = ClientId;
-                entity.DisplayOrder = await GetNextDesignationDisplayOrderAsync(entity.DepartmentId);
+                entity.DesignationCode = codeResult.err_msg;
+                entity.DisplayOrder = await _utilityService.GetNextDisplayOrderAsync(DisplayOrderType.Designation,entity.DepartmentId);
 
                 await _unitOfWork.DesignationRepository.AddAsync(entity);
+
                 var result = await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitTransactionAsync();
+
                 return ApiResponse<bool>.Success(result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
+
                 throw;
             }
         }
+
 
         public async Task<ApiResponse<bool>> UpdateDesignationAsync(DesignationRequestDto dto)
         {
@@ -136,14 +167,14 @@ namespace HRMS.Application.Services
             }
         }
 
-        public async Task<ApiResponse<bool>> ReopenDesignationAsync(Guid DesignationId)
+        public async Task<ApiResponse<bool>> ActivateDesignationAsync(Guid DesignationId)
         {
             try
             {
                 var dbResult = await _unitOfWork.DesignationRepository.FirstOrDefaultAsync(x => x.ClientId == ClientId
                 && x.DesignationId == DesignationId && x.IsActive == false);
 
-                await _unitOfWork.DesignationRepository.ReopenAsync(dbResult);
+                await _unitOfWork.DesignationRepository.ActivateAsync(dbResult);
 
                 var result = await _unitOfWork.SaveChangesAsync();
                 return ApiResponse<bool>.Success(result);
@@ -153,17 +184,5 @@ namespace HRMS.Application.Services
                 throw;
             }
         }
-
-        private async Task<int> GetNextDesignationDisplayOrderAsync(Guid departmentId)
-        {
-            int maxDisplayOrder = await _unitOfWork.DesignationRepository
-            .MaxAsync(x=> x.ClientId == ClientId && x.DepartmentId == departmentId,
-             x => x.DisplayOrder
-             ) ?? 0;
-
-            return maxDisplayOrder;
-        }
-
-
     }
 }

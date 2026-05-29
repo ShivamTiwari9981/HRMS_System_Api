@@ -11,6 +11,6 @@ namespace HRMS.Application.Interfaces
         Task<ApiResponse<bool>> AddDesignationAsync(DesignationRequestDto entity);
         Task<ApiResponse<bool>> UpdateDesignationAsync(DesignationRequestDto Designation);
         Task<ApiResponse<bool>> DeactivateDesignationAsync(Guid DesignationId);
-        Task<ApiResponse<bool>> ReopenDesignationAsync(Guid DesignationId);
+        Task<ApiResponse<bool>> ActivateDesignationAsync(Guid DesignationId);
     }
 }
