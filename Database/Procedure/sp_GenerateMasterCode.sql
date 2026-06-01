@@ -78,6 +78,5 @@ BEGIN
         SET @Msg=ERROR_MESSAGE();
         SET @ErrNo=1;
         -- Return error message
-        THROW;
     END CATCH
 END

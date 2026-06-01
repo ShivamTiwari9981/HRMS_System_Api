@@ -7,15 +7,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data;
 using System.Data.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HRMS.Infrastructure.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
 
-        private readonly HRMSDbRepoContext _context;
-        private IDbContextTransaction _transaction;
+        //private readonly HRMSDbRepoContext _context;
+        //private IDbContextTransaction _transaction;
         private ICurrentUserService _currentService;
+
+        private readonly HRMSDbRepoContext _context;
+        private IDbContextTransaction? _transaction;
         public IGenericRepository<ClientEntity> ClientRepository { get; }
         public IGenericRepository<UserEntity> UserRepository { get; }
         public IGenericRepository<UserRoleEntity> UserRoleRepository { get; }
@@ -33,7 +37,7 @@ namespace HRMS.Infrastructure.Persistence
         public UnitOfWork(HRMSDbRepoContext context , ICurrentUserService currentUser)
         {
             _context = context;
-            _currentService = currentUser;
+            //_currentService = currentUser;
 
             ClientRepository = new GenericRepository<ClientEntity>(_context,_currentService);
             UserRepository = new GenericRepository<UserEntity>(_context, _currentService);
@@ -62,8 +66,10 @@ namespace HRMS.Infrastructure.Persistence
                 return _transaction;
 
             _transaction = await _context.Database.BeginTransactionAsync();
+
             return _transaction;
         }
+
         public async Task CommitTransactionAsync()
         {
             try
@@ -84,6 +90,7 @@ namespace HRMS.Infrastructure.Persistence
             }
         }
 
+
         public async Task RollbackTransactionAsync()
         {
             if (_transaction != null)
@@ -100,7 +107,7 @@ namespace HRMS.Infrastructure.Persistence
         }
 
         // ✅ Get Current Transaction
-        public DbTransaction GetTransaction()
+        public DbTransaction? GetTransaction()
         {
             return _transaction?.GetDbTransaction();
         }

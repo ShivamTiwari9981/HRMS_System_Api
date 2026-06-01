@@ -59,7 +59,6 @@ BEGIN
             ROLLBACK TRANSACTION;  
             RETURN;  
         END  
-        select * from Client  
         Insert into Client  
         (  
             ClientId,  
@@ -94,12 +93,33 @@ BEGIN
             @CreatedBy,  
             0  
         );    
-  
+            
+         EXEC sp_GenerateMasterCode
+            @ClientId = @ClientId,
+            @TableName = 'User',
+            @CreatedBy = @CreatedBy,
+            @ErrNo = @Err_No OUTPUT,
+            @Msg = @Err_Msg OUTPUT;
+
+        IF @Err_No <> 0
+         BEGIN
+
+            SET @Err_No = 1;
+            SET @Err_Msg = 'Error In User  code generation';
+
+            ROLLBACK TRANSACTION;
+            RETURN;
+
+        END
+
+
         -------- Update User ---------------  
   
         Update [User] set ClientId = @ClientId, IsCompanyProfileCreated=1,  
         UpdatedAt = GETUTCDATE(), UpdatedBy =@CreatedBy  
         where UserId = @CreatedBy  
+
+
   
   
         -------- Create Role ---------------  

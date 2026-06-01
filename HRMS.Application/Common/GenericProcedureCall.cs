@@ -17,6 +17,10 @@ namespace HRMS.Application.Common
             public const string sp_AssignRolePermissions_TVP = "sp_AssignRolePermissions_TVP";
             public const string sp_AssignBulkUserRoles = "sp_AssignBulkUserRoles";
             public const string sp_GetUserRolePermissions = "sp_GetUserRolePermissions";
+            public const string sp_AddEmployee = "sp_AddEmployee";
+            public const string Sp_EmployeeSalary = "Sp_EmployeeSalary";
+            public const string SP_Add_User = "SP_Add_User";
+            public const string sp_GetEmployees = "sp_GetEmployees";
         }
         #endregion
 
@@ -61,38 +65,36 @@ namespace HRMS.Application.Common
             }
         }
 
-    public static DataSet ExecuteStoredProcedureWithTransation(
-    string storedProcedureName,
-    IEnumerable<SqlParameter> parameters,
-    DbConnection dbConnection,
-    DbTransaction transaction = null)
+        public static DataSet ExecuteStoredProcedureWithTransation(
+        string storedProcedureName,
+        IEnumerable<SqlParameter> parameters,
+        DbConnection dbConnection,
+        DbTransaction? transaction = null)
         {
-            using (var cmd = dbConnection.CreateCommand())
+            if (dbConnection.State != ConnectionState.Open)
+                dbConnection.Open();
+
+            using var cmd = dbConnection.CreateCommand();
+
+            cmd.CommandText = storedProcedureName;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Transaction = transaction;
+
+            foreach (var parameter in parameters)
             {
-                cmd.CommandText = storedProcedureName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                // IMPORTANT
-                cmd.Transaction = transaction;
-
-                foreach (var parameter in parameters)
-                {
-                    cmd.Parameters.Add(parameter);
-                }
-
-                using (var da = DbProviderFactories
-                    .GetFactory(dbConnection)
-                    .CreateDataAdapter())
-                {
-                    da.SelectCommand = cmd;
-
-                    var ds = new DataSet();
-
-                    da.Fill(ds);
-
-                    return ds;
-                }
+                cmd.Parameters.Add(parameter);
             }
+
+            using var da = DbProviderFactories
+                .GetFactory(dbConnection)
+                .CreateDataAdapter();
+
+            da.SelectCommand = cmd;
+
+            var ds = new DataSet();
+            da.Fill(ds);
+
+            return ds;
         }
 
         public static DataTable ExecuteFunctionProcedure(string functionProcedureName, IEnumerable<SqlParameter> parameters, DbConnection dbConnection)

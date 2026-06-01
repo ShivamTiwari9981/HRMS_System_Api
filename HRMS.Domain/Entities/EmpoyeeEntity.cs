@@ -1,7 +1,6 @@
 ﻿
 using HRMS.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,7 +13,7 @@ namespace HRMS.Domain.Entities
     public class EmployeeEntity : BaseEntity
     {
         [Key]
-        public Guid EmployeeId { get; set; } 
+        public Guid EmployeeId { get; set; }  
         [Required]
         public Guid ClientId { get; set; }
 
@@ -77,6 +76,8 @@ namespace HRMS.Domain.Entities
 
         public Guid? ManagerId { get; set; }
 
+        public bool IsLoginUser { get; set; }
+
         public virtual EmployeeEntity? Manager { get; set; }
 
         public ICollection<EmployeeSalaryEntity> Salaries { get; set; }
@@ -84,5 +85,11 @@ namespace HRMS.Domain.Entities
 
         public ICollection<EmployeeEntity> Subordinates { get; set; }
             = new List<EmployeeEntity>();
+
+        [NotMapped]
+        public UserEntity User { get; set; }= new UserEntity();
+
+        [NotMapped]
+        public EmployeeSalaryEntity Salary { get; set; } = new EmployeeSalaryEntity();
     }
 }

@@ -45,5 +45,6 @@ namespace HRMS.Domain.Entities
         [Required]
         public bool IsCompanyProfileCreated { get; set; } = false;
 
+        public Guid? EmployeeId { get; set; }
     }
 }

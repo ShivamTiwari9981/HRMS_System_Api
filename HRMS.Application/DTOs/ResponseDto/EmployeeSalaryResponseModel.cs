@@ -1,6 +1,6 @@
 ﻿namespace HRMS.Application.DTOs.ResponseDto
 {
-    internal class EmployeeResponseModel
+    public class EmployeeSalaryResponseModel
     {
     }
 }

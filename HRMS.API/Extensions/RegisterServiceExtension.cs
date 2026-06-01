@@ -23,6 +23,8 @@ namespace HRMS.API.Extensions
             services.AddScoped<IOTPService, OTPService>();
             services.AddScoped<IMasterDataService, MasterDataService>();
             services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<IDesignationService, DesignationService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
             
 
 

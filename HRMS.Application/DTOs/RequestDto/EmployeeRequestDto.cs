@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HRMS.Application.DTOs.RequestDto
 {
-    public class EmployeeRequestModel
+    public class EmployeeRequestDto
     {
-        public Guid EmployeeId { get; set; }
-
         public string EmployeeCode { get; set; }
 
         [Required]
@@ -44,10 +42,15 @@ namespace HRMS.Application.DTOs.RequestDto
         public Guid StateId { get; set; }
         public Guid CityId { get; set; }
         public string? PostalCode { get; set; }
-        [MaxLength(200)]
+
         public string? EmergencyContact { get; set; }
 
         public Guid? ManagerId { get; set; }
+
+        public bool IsLoginUser { get; set; }
+
+        public EmployeeSalaryRequestDto Salary { get; set; }
+        public UserRequestDto User { get; set; }
     }
 
 }
