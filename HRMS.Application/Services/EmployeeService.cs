@@ -1,12 +1,11 @@
-﻿using HRMS.Application.DTOs;
-using HRMS.Application.DTOs.RequestDto;
+﻿using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.DTOs.ResponseDto;
 using HRMS.Application.ExtensionMapper;
 using HRMS.Application.Interfaces;
 using HRMS.Domain.Interfaces;
-using HRMS.Shared.Helpers;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Security;
 using System.Data;
 using static HRMS.Application.Common.GenericProcedureCall;
 
@@ -14,12 +13,26 @@ namespace HRMS.Application.Services
 {
     public class EmployeeService : BaseService, IEmployeeService
     {
+        private IMasterDataService _masterDataService;
         public EmployeeService(IUnitOfWork unitOfWork,
-            ICurrentUserService currentSession
+            ICurrentUserService currentSession, IMasterDataService masterDataService
             )
             : base(unitOfWork, currentSession)
         {
+            _masterDataService = masterDataService;
         }
+        public async Task<ApiResponse<bool>> IsEmployeeExist(Guid EmployeeId)
+        {
+            bool IsEmployeeExist = await _unitOfWork.EmployeeRepository.
+                AnyAsync(x => x.ClientId == ClientId
+                && x.EmployeeId == EmployeeId
+                );
+
+            return ApiResponse<bool>.Success(IsEmployeeExist);
+        }
+
+        
+     
         
         public async Task<PagedResponse<EmployeeResponseDto>> GetAllEmployees(EmployeeListRequestDto dto)
         {
@@ -55,6 +68,25 @@ namespace HRMS.Application.Services
             catch (Exception ex)
             {
                 throw new Exception($"Error fetching employees: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<ApiResponse<EmployeeResponseDto>> GetEmployeeByIdAsync(Guid EmployeeId)
+        {
+            try
+            {
+                var employee = await _unitOfWork.EmployeeRepository.FirstOrDefaultAsync(
+                    x => x.ClientId == ClientId
+                    && x.DepartmentId == EmployeeId
+                    );
+
+                var dto = EmployeeMapper.GetDto(employee,ClientId);
+
+                return ApiResponse<DepartmentResponseDto>.Success(dto);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
         public ApiResponse<bool> AddEmployee(EmployeeRequestDto dto)
@@ -106,6 +138,8 @@ namespace HRMS.Application.Services
             }
         }
 
+
+
         #region #EmployeeSalary
         public ApiResponse<bool> AddEmployeeSalary(EmployeeSalaryRequestDto dto)
         {
@@ -150,5 +184,41 @@ namespace HRMS.Application.Services
             }
         }
         #endregion
+
+        public ApiResponse<LoadCreateEmployeeMasterDto> GetDropdownList()
+        {
+            try
+            {
+
+                var model = new LoadCreateEmployeeMasterDto();
+                var param = new List<SqlParameter>
+                {
+                    new SqlParameter("@ClientId", ClientId),
+                    
+                };
+                var result =  ExecuteStoredProcedure(
+                    StoredProcedure.sp_LoadEmployeeDropdown,
+                    param,
+                    _unitOfWork.GetConnection()
+                );
+
+                model.Departments = CommonMethod.ConvertToList<EmployeeDepartmentDto>(result.Tables[0]);
+                model.Designation = CommonMethod.ConvertToList<EmployeeDesignationDto>(result.Tables[1]);
+                model.Gender = _masterDataService.GetGender();
+                if(result.Tables.Count>2)
+                {
+                    model.Manager = CommonMethod.ConvertToList<EmployeeManagerDto>(result.Tables[2]);
+                }
+                return new ApiResponse<LoadCreateEmployeeMasterDto>
+                {
+                    ErrorNo=0,
+                    Data= model
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching employees: {ex.Message}", ex);
+            }
+        }
     }
 }

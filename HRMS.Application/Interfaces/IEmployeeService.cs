@@ -7,6 +7,7 @@ namespace HRMS.Application.Interfaces
     {
         Task<PagedResponse<EmployeeResponseDto>> GetAllEmployees(EmployeeListRequestDto dto);
         ApiResponse<bool> AddEmployee(EmployeeRequestDto dto);
+        ApiResponse<LoadCreateEmployeeMasterDto> GetDropdownList();
     }
 
 }

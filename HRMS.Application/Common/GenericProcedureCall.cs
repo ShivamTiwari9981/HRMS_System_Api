@@ -21,6 +21,7 @@ namespace HRMS.Application.Common
             public const string Sp_EmployeeSalary = "Sp_EmployeeSalary";
             public const string SP_Add_User = "SP_Add_User";
             public const string sp_GetEmployees = "sp_GetEmployees";
+            public const string sp_LoadEmployeeDropdown = "sp_LoadEmployeeDropdown";
         }
         #endregion
 

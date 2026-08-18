@@ -25,6 +25,7 @@ namespace HRMS.API.Extensions
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<IDesignationService, DesignationService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<ILeaveService, LeaveService>();
             
 
 

@@ -22,6 +22,17 @@ namespace HRMS.Application.ExtensionMapper
             };
         }
 
+        public static DepartmentEntity UpdateEntity( DepartmentRequestDto dto,DepartmentEntity entity)
+        {
+            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(entity);
+
+            entity.DepartmentName = dto.DepartmentName;
+            entity.Description = dto.Description;
+
+            return entity;
+        }
+
         public static DepartmentResponseDto GetDto(
             this DepartmentEntity entity)
         {

@@ -1,8 +1,5 @@
 ﻿using HRMS.Application.Interfaces;
 using HRMS.Domain.Interfaces;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
 
 namespace HRMS.API.Middleware
 {

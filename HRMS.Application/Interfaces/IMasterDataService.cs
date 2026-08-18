@@ -1,6 +1,5 @@
 ﻿using HRMS.Application.DTOs.RequestDto;
 using HRMS.Application.DTOs.ResponseDto;
-using HRMS.Domain.Entities;
 using HRMS.Shared.Dto;
 
 namespace HRMS.Application.Interfaces
@@ -9,6 +8,7 @@ namespace HRMS.Application.Interfaces
     {
         Task<List<SubscriptionPlanResponseDto>> GetAllPlansAsync();
         List<EnumDto> GetAllCompanyType();
+        List<EnumDto> GetGender();
         Task<ApiResponse<CompanyDropdownListResponseDto>> GetPlanAndCompanyTypeAsync();
 
         #region Country

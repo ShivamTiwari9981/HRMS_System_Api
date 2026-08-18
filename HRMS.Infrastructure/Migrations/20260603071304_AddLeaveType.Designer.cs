@@ -4,6 +4,7 @@ using HRMS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HRMS.Infrastructure.Migrations
 {
     [DbContext(typeof(HRMSDbRepoContext))]
-    partial class HRMSDbRepoContextModelSnapshot : ModelSnapshot
+    [Migration("20260603071304_AddLeaveType")]
+    partial class AddLeaveType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -600,6 +603,10 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<Guid>("LeaveTypeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("LeaveTypeName")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<decimal>("RemainingLeave")
                         .HasColumnType("decimal(18,2)");
 
@@ -699,9 +706,8 @@ namespace HRMS.Infrastructure.Migrations
                     b.Property<bool?>("IsSynced")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LeaveTypeCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("LeaveTypeCode")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LeaveTypeName")
                         .HasMaxLength(500)

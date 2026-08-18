@@ -19,7 +19,7 @@ namespace HRMS.API.Controllers
         }
 
         // GET: api/department
-        [HttpGet]
+        [HttpGet("get")]
         public async Task<IActionResult> GetAllDepartmentsAsync()
         {
             var result = await _departmentService.GetAllDepartmentsAsync();
@@ -43,7 +43,7 @@ namespace HRMS.API.Controllers
         }
 
         // POST: api/department
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> SaveDepartmentAsync([FromBody] DepartmentRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -94,9 +94,10 @@ namespace HRMS.API.Controllers
 
             return Ok(response);
         }
+        
 
         // PUT: api/department/{departmentId}/activate
-        [HttpPut("{departmentId:guid}/activate")]
+        [HttpPatch("activate/{departmentId:guid}")]
         public async Task<IActionResult> ActivateDepartmentAsync(Guid departmentId)
         {
             var response = await _departmentService.ActivateDepartmentAsync(departmentId);

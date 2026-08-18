@@ -22,6 +22,9 @@ namespace HRMS.Domain.Entities
         public Guid EmployeeId { get; set; }
 
         [Required]
+        public Guid LeaveTypeId { get; set; }
+
+        [Required]
         public DateTime StartDate { get; set; }
 
         [Required]
@@ -29,6 +32,8 @@ namespace HRMS.Domain.Entities
 
         [MaxLength(500)]
         public string? Reason { get; set; }
+
+        public decimal TotalDays { get; set; }
 
         [Required]
         public LeaveStatus LeaveStatus { get; set; }  // Pending, Approved, Rejected

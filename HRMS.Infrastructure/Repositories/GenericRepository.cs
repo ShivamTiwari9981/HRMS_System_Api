@@ -85,7 +85,6 @@ namespace HRMS.Infrastructure.Repositories
         }
         public async Task SoftDeleteAsync(T entity)
         {
-            entity.IsActive = false;
             entity.UpdatedAt = DateTime.UtcNow;
             entity.UpdatedBy = _currentUser.UserId;
 
@@ -96,7 +95,6 @@ namespace HRMS.Infrastructure.Repositories
 
         public async Task ActivateAsync(T entity)
         {
-            entity.IsActive = true;
             entity.UpdatedAt = DateTime.UtcNow;
             entity.UpdatedBy = _currentUser.UserId;
 

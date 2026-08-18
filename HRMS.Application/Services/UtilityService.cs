@@ -48,8 +48,7 @@ namespace HRMS.Application.Services
                     int departmentMaxOrder = await _unitOfWork
                         .DepartmentRepository
                         .MaxAsync(
-                            x => x.ClientId == ClientId
-                              && x.DepartmentId == Id,
+                            x => x.ClientId == ClientId,
                               x => x.DisplayOrder
                         );
 

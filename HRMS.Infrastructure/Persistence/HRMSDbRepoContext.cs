@@ -32,6 +32,8 @@ namespace HRMS.Infrastructure.Persistence
         public DbSet<CityEntity> City { get; set; }
         public DbSet<EmployeeSalaryEntity> EmployeeSalary { get; set; }
         public DbSet<DesignationEntity> Designation { get; set; }
+        public DbSet<LeaveTypeEntity> LeaveType { get; set; }
+        public DbSet<LeaveBalanceEntity> LeaveBalance { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +54,8 @@ namespace HRMS.Infrastructure.Persistence
                 .WithMany(x => x.Employees)
                 .HasForeignKey(x => x.DesignationId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
         }
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)

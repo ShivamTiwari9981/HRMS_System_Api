@@ -2,22 +2,15 @@
 using HRMS.Domain.Entities;
 using HRMS.Domain.Interfaces;
 using HRMS.Infrastructure.Repositories;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Data;
 using System.Data.Common;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HRMS.Infrastructure.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
-
-        //private readonly HRMSDbRepoContext _context;
-        //private IDbContextTransaction _transaction;
-        private ICurrentUserService _currentService;
-
+        private readonly ICurrentUserService _currentService;
         private readonly HRMSDbRepoContext _context;
         private IDbContextTransaction? _transaction;
         public IGenericRepository<ClientEntity> ClientRepository { get; }
@@ -32,12 +25,15 @@ namespace HRMS.Infrastructure.Persistence
         public IGenericRepository<CountryEntity> CountryRepository { get; }
         public IGenericRepository<StateEntity> StateRepository { get; }
         public IGenericRepository<CityEntity> CityRepository { get; }
+        public IGenericRepository<EmployeeEntity> EmployeeRepository { get; }
         public IGenericRepository<EmployeeSalaryEntity> EmployeeSalaryRepository { get; }
         public IGenericRepository<DesignationEntity> DesignationRepository { get; }
+        public IGenericRepository<LeaveTypeEntity> LeaveTypeRepository { get; }
+        public IGenericRepository<LeaveBalanceEntity> LeaveBalanceRepository { get; }
         public UnitOfWork(HRMSDbRepoContext context , ICurrentUserService currentUser)
         {
-            _context = context;
-            //_currentService = currentUser;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _currentService = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
 
             ClientRepository = new GenericRepository<ClientEntity>(_context,_currentService);
             UserRepository = new GenericRepository<UserEntity>(_context, _currentService);
@@ -53,6 +49,9 @@ namespace HRMS.Infrastructure.Persistence
             CityRepository = new GenericRepository<CityEntity>(_context, _currentService);
             EmployeeSalaryRepository = new GenericRepository<EmployeeSalaryEntity>(_context, _currentService);
             DesignationRepository = new GenericRepository<DesignationEntity>(_context, _currentService);
+            LeaveTypeRepository = new GenericRepository<LeaveTypeEntity>(_context, _currentService);
+            LeaveBalanceRepository = new GenericRepository<LeaveBalanceEntity>(_context, _currentService);
+            EmployeeRepository = new GenericRepository<EmployeeEntity>(_context, _currentService);
         }
 
         public async Task<bool> SaveChangesAsync()
@@ -122,6 +121,7 @@ namespace HRMS.Infrastructure.Persistence
         
     }
 }
+
 
 
 

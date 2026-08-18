@@ -20,6 +20,9 @@ namespace HRMS.Domain.Interfaces
         IGenericRepository<CityEntity> CityRepository { get; }
         IGenericRepository<EmployeeSalaryEntity> EmployeeSalaryRepository { get; }
         IGenericRepository<DesignationEntity> DesignationRepository { get; }
+        IGenericRepository<LeaveTypeEntity> LeaveTypeRepository { get; }
+        IGenericRepository<LeaveBalanceEntity> LeaveBalanceRepository { get; }
+        IGenericRepository<EmployeeEntity> EmployeeRepository { get; }
         Task<bool> SaveChangesAsync();
         Task<IDbContextTransaction>BeginTransactionAsync();
         Task CommitTransactionAsync();

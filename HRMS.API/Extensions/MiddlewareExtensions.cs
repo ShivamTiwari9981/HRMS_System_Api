@@ -10,7 +10,7 @@ namespace HRMS.API.Extensions
 
             //app.UseMiddleware<ExceptionMiddleware>();
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
-            //app.UseAuthentication();
+            app.UseAuthentication();
             //app.UseMiddleware<ClientMiddleware>();
             //app.UseMiddleware<SubscriptionMiddleware>();
             app.UseMiddleware<CompanyProfileMiddleware>();

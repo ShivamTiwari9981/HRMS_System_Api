@@ -38,7 +38,12 @@ namespace HRMS.Application.Services
         {
             var result = EnumHelper.GetEnumList<CompanyType>();
             return result;
+        }
 
+        public List<EnumDto> GetGender()
+        {
+            var result = EnumHelper.GetEnumList<GenderType>();
+            return result;
         }
 
         public async Task<ApiResponse<CompanyDropdownListResponseDto>> GetPlanAndCompanyTypeAsync()
@@ -179,8 +184,6 @@ namespace HRMS.Application.Services
             }
         }
         #endregion
-
-
 
         #region State
         public async Task<ApiResponse<bool>> IsStateExist(string StateName)

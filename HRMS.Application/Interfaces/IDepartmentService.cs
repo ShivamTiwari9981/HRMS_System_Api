@@ -7,6 +7,7 @@ namespace HRMS.Application.Interfaces
     public interface IDepartmentService
     {
         Task<ApiResponse<bool>> IsDepartmentExist(Guid DepartmentId);
+        Task<ApiResponse<bool>> IsDepartmentExistByName(string DepartmentName);
         Task<ApiResponse<List<DepartmentResponseDto>>> GetAllDepartmentsAsync();
         Task<ApiResponse<DepartmentResponseDto>> GetDepartmentByIdAsync(Guid DepartmentId);
         Task<ApiResponse<bool>> AddDepartmentAsync(DepartmentRequestDto dto);
